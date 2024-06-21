@@ -39,9 +39,9 @@ const server = app.listen(port, () =>
 
 // const server = https.createServer(credentials, app)
 
-server.listen(port, () => {
-  console.log(`Server started listening on ${port}`)
-})
+// server.listen(port, () => {
+//   console.log(`Server started listening on ${port}`)
+// })
 
 process.on('unhandledRejection', (error, promise) => {
   console.log(`Logged Error: ${error}`)
