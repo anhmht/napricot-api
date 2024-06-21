@@ -6,7 +6,7 @@ require('dotenv').config()
 // const privateKey = fs.readFileSync('.ssl/server.key', 'utf8')
 // const certificate = fs.readFileSync('.ssl/server.crt', 'utf8')
 
-const credentials = { key: privateKey, cert: certificate }
+// const credentials = { key: privateKey, cert: certificate }
 
 const connectDB = require('./config/db')
 const express = require('express')
