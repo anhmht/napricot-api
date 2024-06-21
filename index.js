@@ -1,10 +1,10 @@
 require('dotenv').config()
 
-const https = require('https')
-const fs = require('fs')
+// const https = require('https')
+// const fs = require('fs')
 
-const privateKey = fs.readFileSync('.ssl/server.key', 'utf8')
-const certificate = fs.readFileSync('.ssl/server.crt', 'utf8')
+// const privateKey = fs.readFileSync('.ssl/server.key', 'utf8')
+// const certificate = fs.readFileSync('.ssl/server.crt', 'utf8')
 
 const credentials = { key: privateKey, cert: certificate }
 
@@ -33,11 +33,11 @@ app.use('/', (req, res) => {
   })
 })
 
-// const server = app.listen(port, () =>
-//   console.log(`Server started listening on ${port}`)
-// );
+const server = app.listen(port, () =>
+  console.log(`Server started listening on ${port}`)
+)
 
-const server = https.createServer(credentials, app)
+// const server = https.createServer(credentials, app)
 
 server.listen(port, () => {
   console.log(`Server started listening on ${port}`)
