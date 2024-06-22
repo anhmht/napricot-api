@@ -12,6 +12,7 @@ const connectDB = require('./config/db')
 const express = require('express')
 const errorHandler = require('./middlewares/error')
 const userRoutes = require('./routes/users')
+const authRoutes = require('./routes/auth')
 
 // Connect to DB
 connectDB()
@@ -26,6 +27,7 @@ app.use(errorHandler)
 
 // Routes
 app.use('/users', userRoutes)
+app.use('/', authRoutes)
 
 app.use('/', (req, res) => {
   return res.json({

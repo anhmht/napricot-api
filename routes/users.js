@@ -1,5 +1,6 @@
 const express = require('express')
 const { createUser, getUsers } = require('../controllers/user')
+const { authenticateJWT } = require('../middlewares/authenticate')
 
 const router = express.Router()
 
@@ -7,7 +8,7 @@ const router = express.Router()
 router.post('/', createUser)
 
 // get all users
-router.get('/', getUsers)
+router.get('/', authenticateJWT, getUsers)
 
 // // get a user
 // router.get('/:id', getUser)
