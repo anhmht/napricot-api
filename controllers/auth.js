@@ -19,8 +19,8 @@ const login = async (req, res, next) => {
           userId: existingUser.id,
           email: existingUser.email
         },
-        process.env.JWT_SECRET
-        // { expiresIn: '1h' }
+        process.env.JWT_SECRET,
+        { expiresIn: '' }
       )
     } catch (err) {
       console.log(err)
@@ -29,7 +29,6 @@ const login = async (req, res, next) => {
     }
 
     res.status(200).json({
-      success: true,
       data: {
         userId: existingUser.id,
         email: existingUser.email,
