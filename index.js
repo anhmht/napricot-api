@@ -12,12 +12,11 @@ const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 
-const https = require('https')
-const fs = require('fs')
-const privateKey = fs.readFileSync('.ssl/server.key', 'utf8')
-const certificate = fs.readFileSync('.ssl/server.crt', 'utf8')
-
-const credentials = { key: privateKey, cert: certificate }
+// const https = require('https')
+// const fs = require('fs')
+// const privateKey = fs.readFileSync('.ssl/server.key', 'utf8')
+// const certificate = fs.readFileSync('.ssl/server.crt', 'utf8')
+// const credentials = { key: privateKey, cert: certificate }
 
 // Connect to DB
 connectDB()
@@ -56,14 +55,14 @@ app.use('/', (req, res) => {
   })
 })
 
-// const server = app.listen(port, () =>
-//   console.log(`Server started listening on ${port}`)
-// )
-
-const server = https.createServer(credentials, app)
-server.listen(port, () => {
+const server = app.listen(port, () =>
   console.log(`Server started listening on ${port}`)
-})
+)
+
+// const server = https.createServer(credentials, app)
+// server.listen(port, () => {
+//   console.log(`Server started listening on ${port}`)
+// })
 
 process.on('unhandledRejection', (error, promise) => {
   console.log(`Logged Error: ${error}`)
