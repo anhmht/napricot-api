@@ -11,6 +11,7 @@ const cors = require('cors')
 const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
+const categoryRoutes = require('./routes/category')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -31,7 +32,17 @@ connectToDropbox().then((accessToken) => {
   app.locals.dropboxAccessToken = accessToken
 })
 
-app.use(cors())
+var whitelist = [process.env.WHITELIST_DOMAIN]
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+app.use(cors(corsOptions))
 
 // Use the express-fileupload middleware
 app.use(
@@ -48,6 +59,7 @@ app.use(errorHandler)
 app.use('/users', userRoutes)
 app.use('/images', uploadRoutes)
 app.use('/', authRoutes)
+app.use('/categories', categoryRoutes)
 
 app.use('/', (req, res) => {
   return res.json({

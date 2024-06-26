@@ -5,7 +5,7 @@ const { authenticateJWT } = require('../middlewares/authenticate')
 const router = express.Router()
 
 // create a user
-router.post('/', createUser)
+router.post('/', authenticateJWT, createUser)
 
 // get all users
 router.get('/', authenticateJWT, getUsers)
