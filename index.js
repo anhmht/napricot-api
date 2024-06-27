@@ -33,7 +33,7 @@ connectToDropbox().then((accessToken) => {
   app.locals.dropboxAccessToken = accessToken
 })
 
-var whitelist = [process.env.WHITELIST_DOMAIN]
+var whitelist = process.env.WHITELIST_DOMAIN.split(',')
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
