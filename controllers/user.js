@@ -31,7 +31,10 @@ const createUser = async (req, res, next) => {
 
 const getUsers = async (req, res, next) => {
   try {
+    const a = new Date()
     const users = await User.find()
+    const b = new Date()
+    console.log('Time taken to get users:', b - a)
 
     res.status(200).json({
       users
