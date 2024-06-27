@@ -7,6 +7,7 @@ const express = require('express')
 const fileUpload = require('express-fileupload')
 const errorHandler = require('./middlewares/error')
 const cors = require('cors')
+const boolParser = require('express-query-boolean')
 
 const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
@@ -53,6 +54,7 @@ app.use(
     }
   })
 )
+app.use(boolParser())
 app.use(errorHandler)
 
 // Routes
