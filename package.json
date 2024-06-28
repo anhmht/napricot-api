@@ -24,6 +24,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.4.3",
     "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.14",
     "querystring": "^0.2.1"
   }
 }

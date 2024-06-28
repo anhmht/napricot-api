@@ -1,0 +1,35 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "node_modules/": false
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "prettier.enable": true,
+  "prettier.configPath": ".prettierrc",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "terminal.integrated.fontFamily": "MesloLGS NF",
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.suggest.preview": true,
+  "vscode_custom_css.imports": [
+    "file:///Users/anh.mht/Documents/extension/vscode/color.css"
+  ],
+  "indentRainbow.colors": [
+    "rgba(3, 4, 94, 0.2)",
+    "rgba(2, 62, 138, 0.2)",
+    "rgba(0, 119, 182, 0.2)",
+    "rgba(0, 150, 199, 0.2)",
+    "rgba(0, 180, 216, 0.2)",
+    "rgba(72, 202, 228, 0.2)",
+    "rgba(144, 224, 239, 0.2)",
+    "rgba(173, 232, 244, 0.2)",
+    "rgba(202, 240, 248, 0.2)"
+  ],
+  "git.mergeEditor": false
+}

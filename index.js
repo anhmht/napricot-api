@@ -13,6 +13,7 @@ const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 const categoryRoutes = require('./routes/category')
+const emailRoutes = require('./routes/email')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -62,6 +63,7 @@ app.use('/users', userRoutes)
 app.use('/images', uploadRoutes)
 app.use('/', authRoutes)
 app.use('/categories', categoryRoutes)
+app.use('/email', emailRoutes)
 
 app.use('/', (req, res) => {
   return res.json({
