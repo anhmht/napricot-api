@@ -14,6 +14,8 @@ const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 const categoryRoutes = require('./routes/category')
 const emailRoutes = require('./routes/email')
+const checkoutRoutes = require('./routes/checkout')
+const stripeRoutes = require('./routes/stripe')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -27,6 +29,11 @@ connectDB()
 // Express App
 const app = express()
 const port = process.env.PORT || 8080
+
+// Stripe Webhook use raw body
+app.use('/stripe', stripeRoutes)
+
+// Middleware
 app.use(express.json())
 
 // Connect to Dropbox
@@ -64,6 +71,7 @@ app.use('/images', uploadRoutes)
 app.use('/', authRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/email', emailRoutes)
+app.use('/checkout', checkoutRoutes)
 
 app.use('/', (req, res) => {
   return res.json({
