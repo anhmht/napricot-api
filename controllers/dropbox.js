@@ -27,6 +27,23 @@ const getLink = async (data) => {
   }
 }
 
+const getThumbnail = async (data) => {
+  try {
+    const file = await dbx.filesGetThumbnailV2({
+      resource: {
+        '.tag': 'path',
+        path: data.path
+      },
+      size: data.mode ? data.mode : 'w480h320',
+      mode: 'fitone_bestfit',
+      format: 'jpeg'
+    })
+    return file
+  } catch (error) {
+    await handleDropboxError(error, dbx, data, getThumbnail)
+  }
+}
+
 const uploadImage = async (req, res, next) => {
   const { files } = req.files
 
@@ -53,10 +70,22 @@ const uploadImage = async (req, res, next) => {
 
   const link = await getLink({ path: uploaded.result.path_display })
 
+  const thumbnail = await getThumbnail({ path: uploaded.result.path_display })
+
+  const uploadThumbnail = await uploadImageToDropbox({
+    image: thumbnail.result.fileBinary,
+    type: 'jpg'
+  })
+
+  const thumbnailLink = await getLink({
+    path: uploadThumbnail.result.path_display
+  })
+
   // All good
   res.status(200).json({
     success: true,
-    url: link.result.url.replace('dl=0', 'raw=1')
+    url: link.result.url.replace('dl=0', 'raw=1'),
+    thumbnail: thumbnailLink.result.url.replace('dl=0', 'raw=1')
   })
 }
 

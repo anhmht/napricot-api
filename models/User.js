@@ -15,6 +15,65 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Password is required']
+    },
+    avatar: {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: 'images'
+      },
+      url: {
+        type: String
+      },
+      thumbnail: {
+        type: String
+      }
+    },
+    roles: [
+      {
+        type: String,
+        enum: ['user', 'admin', 'superAdmin'],
+        default: 'user'
+      }
+    ],
+    shippingAddress: {
+      addressLine1: {
+        type: String
+      },
+      addressLine2: {
+        type: String
+      },
+      city: {
+        type: String
+      },
+      postalCode: {
+        type: String
+      },
+      country: {
+        type: String
+      },
+      phone: {
+        type: String
+      }
+    },
+    billingAddress: {
+      addressLine1: {
+        type: String
+      },
+      addressLine2: {
+        type: String
+      },
+      city: {
+        type: String
+      },
+      postalCode: {
+        type: String
+      },
+      country: {
+        type: String
+      },
+      phone: {
+        type: String
+      }
     }
   },
   {
@@ -22,4 +81,4 @@ const userSchema = new mongoose.Schema(
   }
 )
 
-module.exports = mongoose.model('user', userSchema, 'user')
+module.exports = mongoose.model('users', userSchema, 'users')
