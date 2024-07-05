@@ -5,16 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "NODE_TLS_REJECT_UNAUTHORIZED='0' node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@eslint/js": "^9.6.0",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "dropbox": "^10.34.0",
+    "eslint": "^9.6.0",
     "express": "^4.19.2",
     "express-fileupload": "^1.5.0",
     "express-query-boolean": "^2.0.0",

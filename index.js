@@ -16,6 +16,7 @@ const categoryRoutes = require('./routes/category')
 const emailRoutes = require('./routes/email')
 const checkoutRoutes = require('./routes/checkout')
 const stripeRoutes = require('./routes/stripe')
+const postRoutes = require('./routes/post')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -72,6 +73,7 @@ app.use('/', authRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/email', emailRoutes)
 app.use('/checkout', checkoutRoutes)
+app.use('/post', postRoutes)
 
 app.use('/', (req, res) => {
   return res.json({
@@ -88,7 +90,7 @@ const server = app.listen(port, () =>
 //   console.log(`Server started listening on ${port}`)
 // })
 
-process.on('unhandledRejection', (error, promise) => {
+process.on('unhandledRejection', (error) => {
   console.log(`Logged Error: ${error}`)
   server.close(() => process.exit(1))
 })

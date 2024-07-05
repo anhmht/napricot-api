@@ -4,8 +4,7 @@ const imageSchema = new mongoose.Schema(
   {
     path: {
       type: String,
-      required: [true, 'path is required'],
-      unique: true
+      required: [true, 'path is required']
     },
     url: {
       type: String,

@@ -1,6 +1,5 @@
 const Category = require('../models/Category')
 const { cloneDeep } = require('lodash')
-const querystring = require('querystring')
 
 const listToTree = (array) => {
   if (array.length === 0) return []

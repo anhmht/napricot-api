@@ -18,9 +18,7 @@ const postSchema = new mongoose.Schema(
     },
     image: {
       id: {
-        type: Schema.Types.ObjectId,
-        ref: 'images',
-        required: [true, 'Post image is required']
+        type: String
       },
       url: {
         type: String
@@ -29,20 +27,30 @@ const postSchema = new mongoose.Schema(
         type: String
       }
     },
-    categoryId: [
+    images: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'categories',
-        required: [true, 'Post category is required']
+        id: {
+          type: String
+        },
+        url: {
+          type: String
+        },
+        thumbnail: {
+          type: String
+        }
       }
     ],
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'categories',
+      required: [true, 'Post category is required']
+    },
     content: {
       type: String,
       required: [true, 'Post content is required']
     },
     author: {
-      type: Schema.Types.ObjectId,
-      ref: 'users',
+      type: String,
       required: [true, 'Post author is required']
     },
     status: {
