@@ -19,6 +19,30 @@ const uploadImageToDropbox = async (data) => {
   }
 }
 
+const deleteImage = async (data) => {
+  try {
+    const deletedFile = await dbx.filesDeleteBatch({
+      entries: data
+    })
+    return deletedFile.result
+  } catch (error) {
+    console.log(error)
+    await handleDropboxError(error, dbx, data, deleteImage)
+  }
+}
+
+const checkDeleteBatch = async (data) => {
+  try {
+    const job = await dbx.filesDeleteBatchCheck({
+      async_job_id: data.async_job_id
+    })
+    return job
+  } catch (error) {
+    console.log(error)
+    await handleDropboxError(error, dbx, data, checkDeleteBatch)
+  }
+}
+
 const moveImage = async (data) => {
   try {
     const movedFile = await dbx.filesMoveBatchV2({
@@ -114,18 +138,13 @@ const uploadImage = async (req, res, next) => {
 }
 
 const moveAndGetLink = async (req, res, next) => {
-  const { slug, images, movePath } = req.body
-
-  if (!slug || !images.length || !movePath) {
-    res.status(400)
-    return next(new Error('missing required field'))
-  }
+  const { slug, images, movePath, nextIndex } = req.body
 
   if (!dbx.auth.getAccessToken()) {
     dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
   }
 
-  const entries = prepareImagesEntries(images, slug, movePath)
+  const entries = prepareImagesEntries(images, slug, movePath, nextIndex)
 
   const filesMove = await moveImage({
     entries
@@ -182,6 +201,54 @@ const moveAndGetLink = async (req, res, next) => {
   })
 }
 
+const deleteDropboxImages = async (req, res, next) => {
+  const { images, folders = [] } = req.body
+  if (!dbx.auth.getAccessToken()) {
+    dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
+  }
+
+  const entries = []
+
+  folders.forEach((element) => {
+    entries.push({ path: element })
+  })
+
+  for await (const img of images) {
+    const image = await Image.findById(img.id).lean()
+    if (folders.length === 0) {
+      entries.push({ path: image.path })
+      entries.push({ path: image.thumbnailPath })
+    }
+    await Image.findByIdAndDelete(img.id)
+  }
+
+  if (entries.length === 0) {
+    res.status(200).json({
+      success: true
+    })
+  }
+
+  const filesDelete = await deleteImage(entries)
+
+  let retry = 20
+  while (retry) {
+    const job = await checkDeleteBatch({
+      async_job_id: filesDelete.async_job_id
+    })
+
+    if (job.result['.tag'] === 'complete') {
+      retry = 0
+    } else {
+      await sleep(1000)
+      retry -= 1
+    }
+  }
+
+  res.status(200).json({
+    success: true
+  })
+}
+
 const refreshToken = async () => {
   try {
     return await axios.post(
@@ -214,11 +281,11 @@ const handleDropboxError = async (error, dbx, data, cb) => {
   return null
 }
 
-const prepareImagesEntries = (images, slug, path) => {
+const prepareImagesEntries = (images, slug, path, nextIndex) => {
   return images.map((image, index) => {
     return {
       from_path: image.path,
-      to_path: `/${path}/${slug}/${slug}-${index}.jpg`
+      to_path: `/${path}/${slug}/${slug}-${index + nextIndex}.jpg`
     }
   })
 }
@@ -227,5 +294,6 @@ module.exports = {
   refreshToken,
   handleDropboxError,
   uploadImage,
-  moveAndGetLink
+  moveAndGetLink,
+  deleteDropboxImages
 }

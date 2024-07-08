@@ -1,5 +1,9 @@
 const express = require('express')
-const { uploadImage, moveAndGetLink } = require('../controllers/dropbox')
+const {
+  uploadImage,
+  moveAndGetLink,
+  deleteDropboxImages
+} = require('../controllers/dropbox')
 
 const router = express.Router()
 
@@ -8,5 +12,8 @@ router.post('/upload', uploadImage)
 
 // move Image
 router.post('/move', moveAndGetLink)
+
+// delete Image
+router.post('/delete', deleteDropboxImages)
 
 module.exports = router

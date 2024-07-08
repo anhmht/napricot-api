@@ -1,6 +1,10 @@
 const Post = require('../models/Post')
-const axios = require('axios')
-const { getMissingFields } = require('../utils')
+const {
+  getMissingFields,
+  callMoveAndGetLink,
+  getNextNumber,
+  callDeleteImages
+} = require('../utils')
 
 const createPost = async (req, res, next) => {
   try {
@@ -47,19 +51,12 @@ const createPost = async (req, res, next) => {
     })
 
     try {
-      const { data } = await axios.post(
-        `${req.protocol}://${req.get('host')}/images/move`,
-        {
-          slug: post.slug,
-          images: [image, ...images],
-          movePath: 'Post'
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
+      const { data } = await callMoveAndGetLink({
+        slug: post.slug,
+        images: [image, ...images],
+        movePath: 'Post',
+        req
+      })
 
       let content = post.content
       data.images.forEach((element) => {
@@ -90,7 +87,7 @@ const createPost = async (req, res, next) => {
         { new: true }
       )
     } catch (error) {
-      console.log(error)
+      return next(error)
     }
   } catch (error) {
     return next(error)
@@ -103,37 +100,174 @@ const updatePost = async (req, res, next) => {
 
     const { content, image, images } = req.body
 
-    let contentUpdate = content
-    images.forEach((element) => {
-      if (contentUpdate.includes(element.url)) {
-        contentUpdate = contentUpdate.replace(element.url, element.thumbnailUrl)
+    const post = await Post.findById(id)
+
+    if (!post) {
+      res.status(400).json({
+        error: true,
+        message: 'Post not found'
+      })
+      return next(new Error('Post not found'))
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body
+      },
+      { new: true }
+    ).lean()
+
+    res.status(200).json({
+      updatedPost
+    })
+
+    const insertImages = []
+    const deleteImages = []
+
+    if (post.image.id !== image.id) {
+      insertImages.push(image)
+      deleteImages.push(post.image)
+    }
+
+    images.forEach((img) => {
+      if (!post.images.find((image) => image.id === img.id)) {
+        insertImages.push(img)
       }
     })
 
-    const newPost = await Post.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          image: {
-            id: image.id,
-            url: image.url,
-            thumbnail: image.thumbnailUrl
-          },
-          images: images
-            .filter((img) => img.id !== image.id)
-            .map((img) => ({
-              id: img.id,
-              url: img.url,
-              thumbnail: img.thumbnailUrl
-            })),
-          content: contentUpdate
+    post.images.forEach((img) => {
+      if (!images.find((image) => image.id === img.id)) {
+        deleteImages.push(img)
+      }
+    })
+
+    try {
+      const { data: success } = deleteImages.length
+        ? await callDeleteImages({
+            images: deleteImages,
+            req
+          })
+        : { data: { success: true } }
+      if (!success) return
+
+      const { data } = insertImages.length
+        ? await callMoveAndGetLink({
+            slug: post.slug,
+            images: insertImages,
+            movePath: 'Post',
+            req,
+            nextIndex: getNextNumber(
+              [post.image, ...post.images].map((img) => img.thumbnail)
+            )
+          })
+        : { data: { images: [] } }
+
+      let updatedContent = content
+      data.images.forEach((element) => {
+        if (updatedContent.includes(element.url)) {
+          updatedContent = updatedContent.replace(
+            element.url,
+            element.thumbnailUrl
+          )
         }
-      },
-      { new: true }
-    )
+      })
+
+      const updateImage = data.images.find((img) => img._id === image.id)
+
+      await Post.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            image: updateImage
+              ? {
+                  id: updateImage._id,
+                  url: updateImage.url,
+                  thumbnail: updateImage.thumbnailUrl
+                }
+              : undefined,
+            images: images.map((img) => {
+              const updateImg = data.images.find(
+                (image) => image._id === img.id
+              )
+              return {
+                id: updateImg ? updateImg._id : img.id,
+                url: updateImg ? updateImg.url : img.url,
+                thumbnail: updateImg ? updateImg.thumbnailUrl : img.thumbnail
+              }
+            }),
+            content: updatedContent
+          }
+        },
+        { new: true }
+      )
+    } catch (error) {
+      return next(error)
+    }
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const deletePost = async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    const post = await Post.findById(id)
+
+    await Post.findByIdAndDelete(id)
 
     res.status(200).json({
-      newPost
+      success: true
+    })
+
+    try {
+      await callDeleteImages({
+        images: [post.image, ...post.images],
+        folders: [`/Post/${post.slug}`, `/Post/${post.slug}/thumbnail`],
+        req
+      })
+    } catch (error) {
+      return next(error)
+    }
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const getPosts = async (req, res, next) => {
+  try {
+    const { page = 1, size = 10 } = req.query
+
+    const posts = await Post.find()
+      .skip((page - 1) * size)
+      .limit(size)
+      .sort({ createdAt: -1 })
+
+    res.status(200).json({
+      posts
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const getPost = async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    const post = await Post.findById(id)
+
+    if (!post) {
+      res.status(400).json({
+        error: true,
+        message: 'Post not found'
+      })
+      return next(new Error('Post not found'))
+    }
+
+    res.status(200).json({
+      post
     })
   } catch (error) {
     return next(error)
@@ -142,5 +276,8 @@ const updatePost = async (req, res, next) => {
 
 module.exports = {
   createPost,
-  updatePost
+  updatePost,
+  deletePost,
+  getPosts,
+  getPost
 }
