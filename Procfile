@@ -1,1 +1,1 @@
-web: yarn start
+web: pm2 start ecosystem.config.js

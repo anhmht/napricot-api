@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "preinstall": "yarn global add pm2",
+    "preinstall": "yarn global add pm2 && pm2 link 7qf8ll1w19k9p2z 34fc9a9gaegvkxa napricot-staging-api",
     "start": "pm2-runtime start ecosystem.config.js --env"
   },
   "author": "",
