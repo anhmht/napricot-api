@@ -10,7 +10,8 @@ module.exports = {
       // instances: 'max',
       // exec_mode: 'cluster',
       env: {
-        NODE_TLS_REJECT_UNAUTHORIZED: '0'
+        // NODE_TLS_REJECT_UNAUTHORIZED: '0',
+        NODE_ENV: 'production'
       }
     }
   ]
