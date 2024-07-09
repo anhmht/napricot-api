@@ -5,6 +5,7 @@ module.exports = {
       script: 'index.js',
       // Specify delay between watch interval
       watch_delay: 1000,
+      watch: false,
       // Specify which folder to ignore
       ignore_watch: ['node_modules'],
       // instances: 'max',
