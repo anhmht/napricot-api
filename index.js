@@ -11,12 +11,13 @@ const boolParser = require('express-query-boolean')
 
 const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
-const uploadRoutes = require('./routes/upload')
+const imageRoutes = require('./routes/image')
 const categoryRoutes = require('./routes/category')
 const emailRoutes = require('./routes/email')
 const checkoutRoutes = require('./routes/checkout')
 const stripeRoutes = require('./routes/stripe')
 const postRoutes = require('./routes/post')
+const productRoutes = require('./routes/product')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -68,12 +69,13 @@ app.use(errorHandler)
 
 // Routes
 app.use('/users', userRoutes)
-app.use('/images', uploadRoutes)
+app.use('/images', imageRoutes)
 app.use('/', authRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/email', emailRoutes)
 app.use('/checkout', checkoutRoutes)
 app.use('/post', postRoutes)
+app.use('/product', productRoutes)
 
 app.use('/', (req, res) => {
   return res.json({

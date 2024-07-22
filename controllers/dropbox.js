@@ -137,7 +137,7 @@ const uploadImage = async (req, res, next) => {
   })
 }
 
-const moveAndGetLink = async (req, res, next) => {
+const moveAndGetLink = async (req, res) => {
   const { slug, images, movePath, nextIndex } = req.body
 
   if (!dbx.auth.getAccessToken()) {
@@ -201,7 +201,7 @@ const moveAndGetLink = async (req, res, next) => {
   })
 }
 
-const deleteDropboxImages = async (req, res, next) => {
+const deleteDropboxImages = async (req, res) => {
   const { images, folders = [] } = req.body
   if (!dbx.auth.getAccessToken()) {
     dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
@@ -249,6 +249,61 @@ const deleteDropboxImages = async (req, res, next) => {
   })
 }
 
+const moveImagesToDeletedFolder = async (req, res) => {
+  const { images, slug } = req.body
+  if (!dbx.auth.getAccessToken()) {
+    dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
+  }
+
+  const deleteImages = []
+  const databaseImages = []
+
+  for await (const img of images) {
+    const image = await Image.findById(img.id).lean()
+    databaseImages.push(image)
+    deleteImages.push({ path: image.path })
+    deleteImages.push({ path: image.thumbnailPath })
+  }
+
+  const entries = prepareImagesEntries(
+    deleteImages,
+    slug,
+    'Delete Folder',
+    0,
+    true
+  )
+
+  const filesMove = await moveImage({
+    entries
+  })
+
+  let retry = 20
+  while (retry) {
+    const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id })
+
+    if (job.result['.tag'] === 'complete') {
+      retry = 0
+    } else {
+      await sleep(1000)
+      retry -= 1
+    }
+  }
+
+  for await (const img of databaseImages) {
+    await Image.findByIdAndUpdate(img._id, {
+      $set: {
+        path: entries.find((x) => x.from_path === img.path)?.to_path,
+        thumbnailPath: entries.find((x) => x.from_path === img.thumbnailPath)
+          ?.to_path
+      }
+    })
+  }
+
+  res.status(200).json({
+    success: true
+  })
+}
+
 const refreshToken = async () => {
   try {
     return await axios.post(
@@ -281,11 +336,19 @@ const handleDropboxError = async (error, dbx, data, cb) => {
   return null
 }
 
-const prepareImagesEntries = (images, slug, path, nextIndex) => {
+const prepareImagesEntries = (
+  images,
+  slug,
+  path,
+  nextIndex,
+  autoRename = false
+) => {
   return images.map((image, index) => {
     return {
       from_path: image.path,
-      to_path: `/${path}/${slug}/${slug}-${index + nextIndex}.jpg`
+      to_path: autoRename
+        ? `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
+        : `/${path}/${slug}/${slug}-${index + nextIndex}.jpg`
     }
   })
 }
@@ -295,5 +358,6 @@ module.exports = {
   handleDropboxError,
   uploadImage,
   moveAndGetLink,
-  deleteDropboxImages
+  deleteDropboxImages,
+  moveImagesToDeletedFolder
 }

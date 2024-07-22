@@ -8,6 +8,7 @@ const sleep = (duration) => {
 
 const getMissingFields = (data, fields) => {
   const fieldsArray = Object.keys(data)
+  const missingFields = []
   fields.forEach((field) => {
     if (
       !fieldsArray.includes(field) ||
@@ -15,9 +16,11 @@ const getMissingFields = (data, fields) => {
       data[field] === null ||
       data[field] === ''
     ) {
+      missingFields.push(field)
       return field
     }
   })
+  if (missingFields.length > 0) return missingFields.join(', ')
   return undefined
 }
 
@@ -67,6 +70,25 @@ const callDeleteImages = async ({ images, folders, req }) => {
   }
 }
 
+const callMoveImagesToDeletedFolder = async ({ images, slug, req }) => {
+  try {
+    return await axios.post(
+      `${req.protocol}://${req.get('host')}/images/move-to-deleted-folder`,
+      {
+        images,
+        slug
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const getNextNumber = (arr) => {
   if (arr.length === 0) return 0
   const result = arr.map((item) => {
@@ -84,5 +106,6 @@ module.exports = {
   getMissingFields,
   callMoveAndGetLink,
   callDeleteImages,
-  getNextNumber
+  getNextNumber,
+  callMoveImagesToDeletedFolder
 }

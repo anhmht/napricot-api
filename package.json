@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "yarn global add pm2",
+    "migrate": "./node_modules/.bin/migrate up",
     "start": "pm2-runtime start ecosystem.config.js --env"
   },
   "author": "",
@@ -25,6 +26,7 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "migrate-mongoose": "^4.0.0",
     "mongoose": "^8.4.3",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.14",

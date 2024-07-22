@@ -18,8 +18,7 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       id: {
-        type: Schema.Types.ObjectId,
-        ref: 'images',
+        type: String,
         required: [true, 'Product image is required']
       },
       url: {
@@ -32,8 +31,20 @@ const productSchema = new mongoose.Schema(
     images: [
       {
         id: {
-          type: Schema.Types.ObjectId,
-          ref: 'images'
+          type: String
+        },
+        url: {
+          type: String
+        },
+        thumbnail: {
+          type: String
+        }
+      }
+    ],
+    contentImages: [
+      {
+        id: {
+          type: String
         },
         url: {
           type: String
@@ -74,7 +85,7 @@ const productSchema = new mongoose.Schema(
     ],
     type: {
       type: String,
-      enum: ['physical', 'digital'],
+      enum: ['clothing', 'accessories', 'digital'],
       required: [true, 'Product type is required']
     },
     files: [
@@ -91,13 +102,11 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    categoryId: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'categories',
-        required: [true, 'Product category is required']
-      }
-    ],
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'categories',
+      required: [true, 'Product category is required']
+    },
     content: {
       type: String
     },
@@ -115,7 +124,11 @@ const productSchema = new mongoose.Schema(
       {
         type: String
       }
-    ]
+    ],
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true

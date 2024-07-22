@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-mongoose.set('strictQuery', false)
+// mongoose.set('strictQuery', false)
+// mongoose.set('useUnifiedTopology', true)
 
 const connectDB = async () => {
   try {
