@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const connectDB = require('./config/db')
 const connectToDropbox = require('./config/cloud')
+const connectPM2AndReload = require('./pm2/script')
 
 const express = require('express')
 const fileUpload = require('express-fileupload')
@@ -27,6 +28,9 @@ const productRoutes = require('./routes/product')
 
 // Connect to DB
 connectDB()
+
+//PM2
+connectPM2AndReload()
 
 // Express App
 const app = express()
@@ -83,16 +87,22 @@ app.use('/', (req, res) => {
   })
 })
 
-const server = app.listen(port, () =>
+const server = app.listen(port, () => {
   console.log(`Server started listening on ${port}`)
-)
+  process.send('ready')
+})
 
 // const server = https.createServer(credentials, app)
 // server.listen(port, () => {
 //   console.log(`Server started listening on ${port}`)
+//   process.send('ready')
 // })
 
 process.on('unhandledRejection', (error) => {
   console.log(`Logged Error: ${error}`)
   server.close(() => process.exit(1))
+})
+
+process.on('SIGINT', function () {
+  console.log('Caught interrupt signal')
 })

@@ -8,11 +8,14 @@ module.exports = {
       watch: false,
       // Specify which folder to ignore
       ignore_watch: ['node_modules'],
-      cron_restart: '0 03 * * *',
+      restart_delay: 3000,
+      // cron_restart: '0 */3 * * *',
       instances: '4',
       exec_mode: 'cluster',
+      wait_ready: true,
+      autorestart: true,
       env: {
-        NODE_TLS_REJECT_UNAUTHORIZED: '0',
+        // NODE_TLS_REJECT_UNAUTHORIZED: '0',
         NODE_ENV: 'production'
       }
     }
