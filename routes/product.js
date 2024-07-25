@@ -8,6 +8,8 @@ const {
   deleteProduct
 } = require('../controllers/product')
 
+const { getAvailableVariants } = require('../controllers/printify')
+
 const router = express.Router()
 
 // create product
@@ -24,5 +26,8 @@ router.get('/:id', getProduct)
 
 // delete product
 router.delete('/:id', deleteProduct)
+
+// get available printify variants
+router.get('/printify/:provider/:blueprint', getAvailableVariants)
 
 module.exports = router
