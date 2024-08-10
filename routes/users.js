@@ -1,14 +1,29 @@
 const express = require('express')
-const { createUser, getUsers } = require('../controllers/user')
+const {
+  createUser,
+  getUsers,
+  resendVerificationCode,
+  verifyUser,
+  getMe
+} = require('../controllers/user')
 const { authenticateJWT } = require('../middlewares/authenticate')
 
 const router = express.Router()
 
 // create a user
-router.post('/', authenticateJWT, createUser)
+router.post('/register', createUser)
+
+// resend verification code
+router.post('/resend', resendVerificationCode)
+
+// verify user
+router.post('/verify', verifyUser)
 
 // get all users
 router.get('/', authenticateJWT, getUsers)
+
+// get me
+router.get('/me', authenticateJWT, getMe)
 
 // // get a user
 // router.get('/:id', getUser)
