@@ -28,15 +28,13 @@ const sendMail = async (mail) => {
       .toString()
       .trim()
     mail.params.forEach((element) => {
-      html = html.replace(`{${element.key}}`, element.value)
+      html = html.replaceAll(`{${element.key}}`, element.value)
     })
     mainOptions.html = html
 
     transporter.sendMail(mainOptions, function (err, info) {
       if (err) {
         console.log(err)
-      } else {
-        console.log(info)
       }
     })
   } catch (error) {
