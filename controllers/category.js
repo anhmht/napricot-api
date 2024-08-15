@@ -1,5 +1,6 @@
 const Category = require('../models/Category')
 const { cloneDeep } = require('lodash')
+const { getMissingFields } = require('../utils')
 
 const listToTree = (array) => {
   if (array.length === 0) return []
@@ -29,26 +30,31 @@ const listToTree = (array) => {
 
 const createCategory = async (req, res, next) => {
   try {
-    const { name, parentId, desc, imageUrl, thumbnail } = req.body
-    if (!name) {
-      res.status(400)
-      return next(new Error('name category field is required'))
+    const { slug } = req.body
+
+    const missingField = getMissingFields(req.body, ['name', 'slug'])
+    if (missingField) {
+      res.status(400).json({
+        error: true,
+        field: missingField,
+        message: `${missingField} is required`
+      })
+      return next(new Error('missing required field'))
     }
 
     // check if category already exists
-    const isCategoryExists = await Category.findOne({ name })
+    const isCategoryExists = await Category.findOne({ slug })
 
     if (isCategoryExists) {
-      res.status(404)
+      res.status(404).json({
+        error: true,
+        message: 'Category already exists'
+      })
       return next(new Error('Category already exists'))
     }
 
     const category = await Category.create({
-      name,
-      parentId,
-      desc,
-      imageUrl,
-      thumbnail
+      ...req.body
     })
 
     res.status(200).json({
@@ -63,18 +69,11 @@ const getCategories = async (req, res, next) => {
   try {
     const categories = await Category.find().lean()
 
-    const { tree } = req.query
-
-    if (tree) {
-      const treeCategories = listToTree(categories)
-
-      return res.status(200).json({
-        categories: treeCategories
-      })
-    }
+    const treeCategories = listToTree(categories)
 
     return res.status(200).json({
-      categories
+      categories,
+      treeCategories
     })
   } catch (error) {
     return next(error)
@@ -88,7 +87,10 @@ const updateCategory = async (req, res, next) => {
     const category = await Category.findById(id)
 
     if (!category) {
-      res.status(404)
+      res.status(404).json({
+        error: true,
+        message: 'Category not found'
+      })
       return next(new Error('Category not found'))
     }
 
@@ -115,7 +117,10 @@ const deleteCategory = async (req, res, next) => {
     const category = await Category.findById(id)
 
     if (!category) {
-      res.status(404)
+      res.status(404).json({
+        error: true,
+        message: 'Category not found'
+      })
       return next(new Error('Category not found'))
     }
 

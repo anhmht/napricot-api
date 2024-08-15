@@ -29,13 +29,11 @@ const userSchema = new mongoose.Schema(
         type: String
       }
     },
-    roles: [
-      {
-        type: String,
-        enum: ['user', 'admin', 'superAdmin'],
-        default: 'user'
-      }
-    ],
+    roles: {
+      type: [String],
+      enum: ['user', 'admin', 'superadmin'],
+      default: ['user']
+    },
     shippingAddress: {
       addressLine1: {
         type: String
@@ -75,6 +73,13 @@ const userSchema = new mongoose.Schema(
       phone: {
         type: String
       }
+    },
+    verifyCode: {
+      type: String
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     }
   },
   {
