@@ -101,11 +101,23 @@ const getNextNumber = (arr) => {
   return Math.max(...result) + 1
 }
 
+const createSearchObject = (field) => {
+  const searchObject = {}
+  for (const [key, value] of Object.entries(field)) {
+    if (!value) continue
+    searchObject[key] = {
+      $regex: new RegExp(`.*${value}.*`, 'i')
+    }
+  }
+  return searchObject
+}
+
 module.exports = {
   sleep,
   getMissingFields,
   callMoveAndGetLink,
   callDeleteImages,
   getNextNumber,
-  callMoveImagesToDeletedFolder
+  callMoveImagesToDeletedFolder,
+  createSearchObject
 }

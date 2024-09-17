@@ -1,6 +1,6 @@
 const Category = require('../models/Category')
 const { cloneDeep } = require('lodash')
-const { getMissingFields } = require('../utils')
+const { getMissingFields, createSearchObject } = require('../utils')
 
 const listToTree = (array) => {
   if (array.length === 0) return []
@@ -67,6 +67,22 @@ const createCategory = async (req, res, next) => {
 
 const getCategories = async (req, res, next) => {
   try {
+    const { page, limit, sort, name } = req.query
+    if (page && limit) {
+      const search = createSearchObject({ name })
+      const categories = await Category.find(search)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ [sort ? sort : 'createdAt']: 'desc' })
+        .lean()
+
+      const total = await Category.countDocuments(search).exec()
+      return res.status(200).json({
+        categories,
+        total,
+        totalPages: Math.ceil(total / limit)
+      })
+    }
     const categories = await Category.find().lean()
 
     const treeCategories = listToTree(categories)

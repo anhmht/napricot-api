@@ -38,7 +38,10 @@ const login = async (req, res, next) => {
           password: existingUser.password
         },
         process.env.JWT_SECRET,
-        { expiresIn: '10 years' }
+        {
+          expiresIn: '10 years',
+          algorithm: 'HS256'
+        }
       )
     } catch (err) {
       const error = new Error('Error! Something went wrong.')

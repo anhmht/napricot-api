@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 })
 
 const mainOptions = {
-  from: 'Napricot Support',
+  from: 'Napricot <support@napricot.com>',
   subject: 'Test Send Mail Nodejs',
   html: fs
     .readFileSync('./email-template/order-success.html', 'utf8')
