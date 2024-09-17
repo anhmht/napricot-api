@@ -96,6 +96,28 @@ const getCategories = async (req, res, next) => {
   }
 }
 
+const getCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    const category = await Category.findById(id).lean()
+
+    if (!category) {
+      res.status(404).json({
+        error: true,
+        message: 'Category not found'
+      })
+      return next(new Error('Category not found'))
+    }
+
+    res.status(200).json({
+      ...category
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
 const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -119,7 +141,7 @@ const updateCategory = async (req, res, next) => {
     )
 
     res.status(200).json({
-      updatedCategory
+      category: updatedCategory
     })
   } catch (error) {
     return next(error)
@@ -151,9 +173,38 @@ const deleteCategory = async (req, res, next) => {
   }
 }
 
+const deleteCategories = async (req, res, next) => {
+  try {
+    const { ids } = req.body
+
+    if (!ids) {
+      res.status(400).json({
+        error: true,
+        message: 'ids is required'
+      })
+      return next(new Error('ids is required'))
+    }
+
+    await Category.deleteMany({
+      _id: {
+        $in: ids
+      }
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Categories have been deleted.'
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   getCategories,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getCategory,
+  deleteCategories
 }
