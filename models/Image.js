@@ -15,6 +15,9 @@ const imageSchema = new mongoose.Schema(
     },
     thumbnailUrl: {
       type: String
+    },
+    cloudflareUrl: {
+      type: String
     }
   },
   {

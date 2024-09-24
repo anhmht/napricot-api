@@ -80,21 +80,21 @@ const getLink = async (data) => {
   }
 }
 
-const getThumbnail = async (data) => {
+const uploadImageToCloudflare = async (data) => {
   try {
-    const file = await dbx.filesGetThumbnailV2({
-      resource: {
-        '.tag': 'path',
-        path: data.path
-      },
-      size: data.mode ? data.mode : 'w480h320',
-      mode: 'fitone_bestfit',
-      format: 'jpeg'
-    })
-    return file
+    const uploadedFile = await axios.post(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
+      new FormData({ url: data.url }),
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    return `${process.env.FRONTEND_IMAGE_URL}/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/${uploadedFile.data.result.id}/`
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, getThumbnail)
   }
 }
 
@@ -166,17 +166,8 @@ const moveAndGetLink = async (req, res) => {
   for await (const [index, value] of entries.entries()) {
     const a = new Date()
 
-    const thumbnail = await getThumbnail({ path: value.to_path })
-
-    const uploadThumbnail = await uploadImageToDropbox({
-      image: thumbnail.result.fileBinary,
-      type: 'jpg',
-      //regex for the last / in the path
-      path: value.to_path.replace(/\/(?!.*\/)/, '/thumbnail/')
-    })
-
-    const thumbnailLink = await getLink({
-      path: uploadThumbnail.result.path_display
+    const cloudflareLink = await uploadImageToCloudflare({
+      url: images[index].url
     })
 
     const image = await Image.findByIdAndUpdate(
@@ -184,8 +175,7 @@ const moveAndGetLink = async (req, res) => {
       {
         path: value.to_path,
         url: images[index].url,
-        thumbnailUrl: thumbnailLink.result.url.replace('dl=0', 'raw=1'),
-        thumbnailPath: uploadThumbnail.result.path_display
+        cloudflareUrl: cloudflareLink
       },
       {
         new: true
@@ -217,7 +207,6 @@ const deleteDropboxImages = async (req, res) => {
     const image = await Image.findById(img.id).lean()
     if (folders.length === 0) {
       entries.push({ path: image.path })
-      entries.push({ path: image.thumbnailPath })
     }
     await Image.findByIdAndDelete(img.id)
   }
@@ -262,7 +251,6 @@ const moveImagesToDeletedFolder = async (req, res) => {
     const image = await Image.findById(img.id).lean()
     databaseImages.push(image)
     deleteImages.push({ path: image.path })
-    deleteImages.push({ path: image.thumbnailPath })
   }
 
   const entries = prepareImagesEntries(
@@ -292,9 +280,7 @@ const moveImagesToDeletedFolder = async (req, res) => {
   for await (const img of databaseImages) {
     await Image.findByIdAndUpdate(img._id, {
       $set: {
-        path: entries.find((x) => x.from_path === img.path)?.to_path,
-        thumbnailPath: entries.find((x) => x.from_path === img.thumbnailPath)
-          ?.to_path
+        path: entries.find((x) => x.from_path === img.path)?.to_path
       }
     })
   }

@@ -3,7 +3,8 @@ const {
   getMissingFields,
   callMoveAndGetLink,
   getNextNumber,
-  callDeleteImages
+  callDeleteImages,
+  createSearchObject
 } = require('../utils')
 
 const createPost = async (req, res, next) => {
@@ -237,15 +238,22 @@ const deletePost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, size = 10 } = req.query
+    const { page, limit, sort, title } = req.query
 
-    const posts = await Post.find()
-      .skip((page - 1) * size)
-      .limit(size)
-      .sort({ createdAt: -1 })
+    const search = createSearchObject({ title })
+
+    const posts = await Post.find(search)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ [sort ? sort : 'createdAt']: 'desc' })
+      .lean()
+
+    const total = await Post.countDocuments(search).exec()
 
     res.status(200).json({
-      posts
+      posts,
+      total,
+      totalPages: Math.ceil(total / limit)
     })
   } catch (error) {
     return next(error)
