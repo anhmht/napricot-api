@@ -9,7 +9,7 @@ const dbx = new Dropbox()
 const uploadImageToDropbox = async (data) => {
   try {
     const uploadedFile = await dbx.filesUpload({
-      path: `/temp/${data.name}.${data.type}`,
+      path: `/temp/${data.name}`,
       contents: data.image,
       mode: 'add'
     })
