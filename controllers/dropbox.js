@@ -88,10 +88,12 @@ const getLink = async (data) => {
 }
 
 const uploadImageToCloudflare = async (data) => {
+  const formData = new FormData()
+  formData.append('url', data.url)
   try {
     const uploadedFile = await axios.post(
       `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
-      new FormData({ url: data.url }),
+      formData,
       {
         headers: {
           Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,

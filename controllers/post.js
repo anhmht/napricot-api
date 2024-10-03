@@ -59,10 +59,14 @@ const createPost = async (req, res, next) => {
         req
       })
 
-      let content = post.content
+      let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
+
       data.images.forEach((element) => {
         if (content.includes(element.url)) {
-          content = content.replace(element.url, element.thumbnailUrl)
+          content = content.replace(
+            element.url,
+            element.cloudflareUrl + 'post872x424'
+          )
         }
       })
 
@@ -73,14 +77,14 @@ const createPost = async (req, res, next) => {
             image: {
               id: data.images[0]._id,
               url: data.images[0].url,
-              thumbnail: data.images[0].thumbnailUrl
+              cloudflareUrl: data.images[0].cloudflareUrl
             },
             images: data.images
               .filter((img) => img._id !== id)
               .map((img) => ({
                 id: img._id,
                 url: img.url,
-                thumbnail: img.thumbnailUrl
+                cloudflareUrl: img.cloudflareUrl
               })),
             content
           }
