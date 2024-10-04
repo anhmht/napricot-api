@@ -175,13 +175,13 @@ const uploadImage = async (req, res, next) => {
 }
 
 const moveAndGetLink = async (req, res) => {
-  const { slug, images, movePath, nextIndex } = req.body
+  const { slug, images, movePath } = req.body
 
   if (!dbx.auth.getAccessToken()) {
     dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
   }
 
-  const entries = prepareImagesEntries(images, slug, movePath, nextIndex)
+  const entries = prepareImagesEntries(images, slug, movePath)
 
   try {
     const filesMove = await moveImage({
@@ -245,10 +245,21 @@ const deleteDropboxImages = async (req, res) => {
   }
 
   const entries = []
+  const imagesToDelete = []
 
-  folders.forEach((element) => {
-    entries.push({ path: element })
-  })
+  if (folders.length === 0) {
+    for await (const img of images) {
+      const image = await Image.findById(img.id).lean()
+      if (image) {
+        imagesToDelete.push(image)
+        entries.push({ path: image.path })
+      }
+    }
+  } else {
+    folders.forEach((element) => {
+      entries.push({ path: element })
+    })
+  }
 
   try {
     const filesDelete = await deleteImage(entries)
@@ -267,14 +278,11 @@ const deleteDropboxImages = async (req, res) => {
       }
     }
 
-    for await (const img of images) {
-      const image = await Image.findById(img.id).lean()
-      if (image) {
-        if (image.cloudflareUrl) {
-          await deleteImageFromCloudflare(image)
-        }
-        await Image.findByIdAndDelete(img.id)
+    for await (const img of imagesToDelete) {
+      if (img.cloudflareUrl) {
+        await deleteImageFromCloudflare(img)
       }
+      await Image.findByIdAndDelete(img._id)
     }
 
     res.status(200).json({
@@ -307,13 +315,7 @@ const moveImagesToDeletedFolder = async (req, res) => {
       deleteImages.push({ path: image.path })
     }
 
-    const entries = prepareImagesEntries(
-      deleteImages,
-      slug,
-      'Delete Folder',
-      0,
-      true
-    )
+    const entries = prepareImagesEntries(deleteImages, slug, 'Delete Folder')
 
     const filesMove = await moveImage({
       entries
@@ -384,19 +386,11 @@ const handleDropboxError = async (error, dbx) => {
   return null
 }
 
-const prepareImagesEntries = (
-  images,
-  slug,
-  path,
-  nextIndex,
-  autoRename = false
-) => {
+const prepareImagesEntries = (images, slug, path) => {
   return images.map((image, index) => {
     return {
       from_path: image.path,
-      to_path: autoRename
-        ? `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
-        : `/${path}/${slug}/${slug}-${index + nextIndex}.jpg`
+      to_path: `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
     }
   })
 }

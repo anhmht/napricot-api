@@ -2,7 +2,6 @@ const Post = require('../models/Post')
 const {
   getMissingFields,
   callMoveAndGetLink,
-  getNextNumber,
   callDeleteImages,
   createSearchObject
 } = require('../utils')
@@ -161,19 +160,16 @@ const updatePost = async (req, res, next) => {
             slug: post.slug,
             images: insertImages,
             movePath: 'Post',
-            req,
-            nextIndex: getNextNumber(
-              [post.image, ...post.images].map((img) => img.thumbnail)
-            )
+            req
           })
         : { data: { images: [] } }
 
-      let updatedContent = content
+      let updatedContent = decodeURIComponent(content).replaceAll('&amp;', '&')
       data.images.forEach((element) => {
         if (updatedContent.includes(element.url)) {
           updatedContent = updatedContent.replace(
             element.url,
-            element.thumbnailUrl
+            element.cloudflareUrl + 'post872x424'
           )
         }
       })
@@ -188,7 +184,7 @@ const updatePost = async (req, res, next) => {
               ? {
                   id: updateImage._id,
                   url: updateImage.url,
-                  thumbnail: updateImage.thumbnailUrl
+                  cloudflareUrl: updateImage.cloudflareUrl
                 }
               : undefined,
             images: images.map((img) => {
@@ -198,7 +194,9 @@ const updatePost = async (req, res, next) => {
               return {
                 id: updateImg ? updateImg._id : img.id,
                 url: updateImg ? updateImg.url : img.url,
-                thumbnail: updateImg ? updateImg.thumbnailUrl : img.thumbnail
+                cloudflareUrl: updateImg
+                  ? updateImg.cloudflareUrl
+                  : img.cloudflareUrl
               }
             }),
             content: updatedContent

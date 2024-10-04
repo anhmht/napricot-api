@@ -24,21 +24,14 @@ const getMissingFields = (data, fields) => {
   return undefined
 }
 
-const callMoveAndGetLink = async ({
-  slug,
-  images,
-  movePath,
-  req,
-  nextIndex = 0
-}) => {
+const callMoveAndGetLink = async ({ slug, images, movePath, req }) => {
   try {
     return await axios.post(
       `${req.protocol}://${req.get('host')}/images/move`,
       {
         slug,
         images,
-        movePath,
-        nextIndex
+        movePath
       },
       {
         headers: {
