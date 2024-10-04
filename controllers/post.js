@@ -62,7 +62,7 @@ const createPost = async (req, res, next) => {
       let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
 
       data.images.forEach((element) => {
-        if (content.includes(element.url)) {
+        if (content.includes(element.url) && element.cloudflareUrl) {
           content = content.replace(
             element.url,
             element.cloudflareUrl + 'post872x424'
@@ -229,7 +229,44 @@ const deletePost = async (req, res, next) => {
     try {
       await callDeleteImages({
         images: [post.image, ...post.images],
-        folders: [`/Post/${post.slug}`, `/Post/${post.slug}/thumbnail`],
+        folders: [`/Post/${post.slug}`],
+        req
+      })
+    } catch (error) {
+      return next(error)
+    }
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const deletePosts = async (req, res, next) => {
+  try {
+    const { ids } = req.body
+
+    const posts = await Post.find({
+      _id: {
+        $in: ids
+      }
+    })
+
+    await Post.deleteMany({
+      _id: {
+        $in: ids
+      }
+    })
+
+    res.status(200).json({
+      success: true
+    })
+
+    try {
+      await callDeleteImages({
+        images: posts
+          .map((post) => post.image)
+          .concat(posts.map((post) => post.images))
+          .flat(Infinity),
+        folders: posts.map((post) => `/Post/${post.slug}`),
         req
       })
     } catch (error) {
@@ -290,6 +327,7 @@ module.exports = {
   createPost,
   updatePost,
   deletePost,
+  deletePosts,
   getPosts,
   getPost
 }

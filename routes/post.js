@@ -4,7 +4,8 @@ const {
   updatePost,
   getPosts,
   getPost,
-  deletePost
+  deletePost,
+  deletePosts
 } = require('../controllers/post')
 const { authenticateJWT } = require('../middlewares/authenticate')
 const { authorize } = require('../middlewares/authorize')
@@ -25,5 +26,8 @@ router.get('/:id', getPost)
 
 // deletePost
 router.delete('/:id', authenticateJWT, authorize, deletePost)
+
+// deletePosts
+router.delete('/', authenticateJWT, authorize, deletePosts)
 
 module.exports = router

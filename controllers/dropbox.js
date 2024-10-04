@@ -107,6 +107,23 @@ const uploadImageToCloudflare = async (data) => {
   }
 }
 
+const deleteImageFromCloudflare = async (data) => {
+  const split = data.cloudflareUrl.split('/')
+  const id = split[split.length - 2]
+  try {
+    await axios.delete(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
+        }
+      }
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const uploadImage = async (req, res, next) => {
   const { files } = req.files
 
@@ -234,20 +251,6 @@ const deleteDropboxImages = async (req, res) => {
   })
 
   try {
-    for await (const img of images) {
-      const image = await Image.findById(img.id).lean()
-      if (folders.length === 0) {
-        entries.push({ path: image.path })
-      }
-      await Image.findByIdAndDelete(img.id)
-    }
-
-    if (entries.length === 0) {
-      res.status(200).json({
-        success: true
-      })
-    }
-
     const filesDelete = await deleteImage(entries)
 
     let retry = 20
@@ -261,6 +264,16 @@ const deleteDropboxImages = async (req, res) => {
       } else {
         await sleep(1000)
         retry -= 1
+      }
+    }
+
+    for await (const img of images) {
+      const image = await Image.findById(img.id).lean()
+      if (image) {
+        if (image.cloudflareUrl) {
+          await deleteImageFromCloudflare(image)
+        }
+        await Image.findByIdAndDelete(img.id)
       }
     }
 
