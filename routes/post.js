@@ -5,7 +5,8 @@ const {
   getPosts,
   getPost,
   deletePost,
-  deletePosts
+  deletePosts,
+  getPostBySlug
 } = require('../controllers/post')
 const { authenticateJWT } = require('../middlewares/authenticate')
 const { authorize } = require('../middlewares/authorize')
@@ -23,6 +24,9 @@ router.get('/', getPosts)
 
 // getPost
 router.get('/:id', getPost)
+
+// getPostBySlug
+router.get('/slug/:slug', getPostBySlug)
 
 // deletePost
 router.delete('/:id', authenticateJWT, authorize, deletePost)

@@ -94,12 +94,38 @@ const getNextNumber = (arr) => {
   return Math.max(...result) + 1
 }
 
-const createSearchObject = (field) => {
+const createSearchObject = ({
+  searchLikeObject,
+  searchEqualObject,
+  searchInObject,
+  searchRangeObject
+}) => {
   const searchObject = {}
-  for (const [key, value] of Object.entries(field)) {
+  if (!searchLikeObject) searchLikeObject = {}
+  if (!searchEqualObject) searchEqualObject = {}
+  if (!searchInObject) searchInObject = {}
+  if (!searchRangeObject) searchRangeObject = {}
+  for (const [key, value] of Object.entries(searchLikeObject)) {
     if (!value) continue
     searchObject[key] = {
       $regex: new RegExp(`.*${value}.*`, 'i')
+    }
+  }
+  for (const [key, value] of Object.entries(searchEqualObject)) {
+    if (!value) continue
+    searchObject[key] = value
+  }
+  for (const [key, value] of Object.entries(searchInObject)) {
+    if (!value) continue
+    searchObject[key] = {
+      $in: value
+    }
+  }
+  for (const [key, value] of Object.entries(searchRangeObject)) {
+    if (!value) continue
+    searchObject[key] = {
+      $gte: value.from,
+      $lte: value.to
     }
   }
   return searchObject

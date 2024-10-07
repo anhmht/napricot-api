@@ -277,11 +277,15 @@ const deletePosts = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page, limit, sort, title } = req.query
+    const { page, limit, sort, title, categoryId } = req.query
 
-    const search = createSearchObject({ title })
+    const search = createSearchObject({
+      searchLikeObject: { title },
+      searchEqualObject: { categoryId }
+    })
 
     const posts = await Post.find(search)
+      .select('-content')
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ [sort ? sort : 'createdAt']: 'desc' })
@@ -321,11 +325,36 @@ const getPost = async (req, res, next) => {
   }
 }
 
+const getPostBySlug = async (req, res, next) => {
+  try {
+    const { slug } = req.params
+
+    const post = await Post.findOne({
+      slug
+    })
+
+    if (!post) {
+      res.status(400).json({
+        error: true,
+        message: 'Post not found'
+      })
+      return next(new Error('Post not found'))
+    }
+
+    res.status(200).json({
+      post
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   createPost,
   updatePost,
   deletePost,
   deletePosts,
   getPosts,
-  getPost
+  getPost,
+  getPostBySlug
 }

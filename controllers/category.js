@@ -69,7 +69,7 @@ const getCategories = async (req, res, next) => {
   try {
     const { page, limit, sort, name } = req.query
     if (page && limit) {
-      const search = createSearchObject({ name })
+      const search = createSearchObject({ searchLikeObject: { name } })
       const categories = await Category.find(search)
         .skip((page - 1) * limit)
         .limit(limit)
