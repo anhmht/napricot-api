@@ -23,7 +23,7 @@ const postSchema = new mongoose.Schema(
       url: {
         type: String
       },
-      thumbnail: {
+      cloudflareUrl: {
         type: String
       }
     },
@@ -35,7 +35,7 @@ const postSchema = new mongoose.Schema(
         url: {
           type: String
         },
-        thumbnail: {
+        cloudflareUrl: {
           type: String
         }
       }

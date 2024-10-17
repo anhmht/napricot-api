@@ -2,8 +2,8 @@ const Post = require('../models/Post')
 const {
   getMissingFields,
   callMoveAndGetLink,
-  getNextNumber,
-  callDeleteImages
+  callDeleteImages,
+  createSearchObject
 } = require('../utils')
 
 const createPost = async (req, res, next) => {
@@ -58,10 +58,14 @@ const createPost = async (req, res, next) => {
         req
       })
 
-      let content = post.content
+      let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
+
       data.images.forEach((element) => {
-        if (content.includes(element.url)) {
-          content = content.replace(element.url, element.thumbnailUrl)
+        if (content.includes(element.url) && element.cloudflareUrl) {
+          content = content.replace(
+            element.url,
+            element.cloudflareUrl + 'post872x424'
+          )
         }
       })
 
@@ -72,14 +76,14 @@ const createPost = async (req, res, next) => {
             image: {
               id: data.images[0]._id,
               url: data.images[0].url,
-              thumbnail: data.images[0].thumbnailUrl
+              cloudflareUrl: data.images[0].cloudflareUrl
             },
             images: data.images
               .filter((img) => img._id !== id)
               .map((img) => ({
                 id: img._id,
                 url: img.url,
-                thumbnail: img.thumbnailUrl
+                cloudflareUrl: img.cloudflareUrl
               })),
             content
           }
@@ -156,19 +160,16 @@ const updatePost = async (req, res, next) => {
             slug: post.slug,
             images: insertImages,
             movePath: 'Post',
-            req,
-            nextIndex: getNextNumber(
-              [post.image, ...post.images].map((img) => img.thumbnail)
-            )
+            req
           })
         : { data: { images: [] } }
 
-      let updatedContent = content
+      let updatedContent = decodeURIComponent(content).replaceAll('&amp;', '&')
       data.images.forEach((element) => {
         if (updatedContent.includes(element.url)) {
           updatedContent = updatedContent.replace(
             element.url,
-            element.thumbnailUrl
+            element.cloudflareUrl + 'post872x424'
           )
         }
       })
@@ -183,7 +184,7 @@ const updatePost = async (req, res, next) => {
               ? {
                   id: updateImage._id,
                   url: updateImage.url,
-                  thumbnail: updateImage.thumbnailUrl
+                  cloudflareUrl: updateImage.cloudflareUrl
                 }
               : undefined,
             images: images.map((img) => {
@@ -193,7 +194,9 @@ const updatePost = async (req, res, next) => {
               return {
                 id: updateImg ? updateImg._id : img.id,
                 url: updateImg ? updateImg.url : img.url,
-                thumbnail: updateImg ? updateImg.thumbnailUrl : img.thumbnail
+                cloudflareUrl: updateImg
+                  ? updateImg.cloudflareUrl
+                  : img.cloudflareUrl
               }
             }),
             content: updatedContent
@@ -224,7 +227,44 @@ const deletePost = async (req, res, next) => {
     try {
       await callDeleteImages({
         images: [post.image, ...post.images],
-        folders: [`/Post/${post.slug}`, `/Post/${post.slug}/thumbnail`],
+        folders: [`/Post/${post.slug}`],
+        req
+      })
+    } catch (error) {
+      return next(error)
+    }
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const deletePosts = async (req, res, next) => {
+  try {
+    const { ids } = req.body
+
+    const posts = await Post.find({
+      _id: {
+        $in: ids
+      }
+    })
+
+    await Post.deleteMany({
+      _id: {
+        $in: ids
+      }
+    })
+
+    res.status(200).json({
+      success: true
+    })
+
+    try {
+      await callDeleteImages({
+        images: posts
+          .map((post) => post.image)
+          .concat(posts.map((post) => post.images))
+          .flat(Infinity),
+        folders: posts.map((post) => `/Post/${post.slug}`),
         req
       })
     } catch (error) {
@@ -237,15 +277,26 @@ const deletePost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, size = 10 } = req.query
+    const { page, limit, sort, title, categoryId } = req.query
 
-    const posts = await Post.find()
-      .skip((page - 1) * size)
-      .limit(size)
-      .sort({ createdAt: -1 })
+    const search = createSearchObject({
+      searchLikeObject: { title },
+      searchEqualObject: { categoryId }
+    })
+
+    const posts = await Post.find(search)
+      .select('-content')
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ [sort ? sort : 'createdAt']: 'desc' })
+      .lean()
+
+    const total = await Post.countDocuments(search).exec()
 
     res.status(200).json({
-      posts
+      posts,
+      total,
+      totalPages: Math.ceil(total / limit)
     })
   } catch (error) {
     return next(error)
@@ -274,10 +325,36 @@ const getPost = async (req, res, next) => {
   }
 }
 
+const getPostBySlug = async (req, res, next) => {
+  try {
+    const { slug } = req.params
+
+    const post = await Post.findOne({
+      slug
+    })
+
+    if (!post) {
+      res.status(400).json({
+        error: true,
+        message: 'Post not found'
+      })
+      return next(new Error('Post not found'))
+    }
+
+    res.status(200).json({
+      post
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   createPost,
   updatePost,
   deletePost,
+  deletePosts,
   getPosts,
-  getPost
+  getPost,
+  getPostBySlug
 }

@@ -9,13 +9,15 @@ const dbx = new Dropbox()
 const uploadImageToDropbox = async (data) => {
   try {
     const uploadedFile = await dbx.filesUpload({
-      path: data.path || `/temp/${new Date().toISOString()}.${data.type}`,
-      contents: data.image
+      path: `/temp/${data.name}`,
+      contents: data.image,
+      mode: 'add'
     })
     return uploadedFile
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, uploadImageToDropbox)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
@@ -27,7 +29,8 @@ const deleteImage = async (data) => {
     return deletedFile.result
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, deleteImage)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
@@ -39,7 +42,8 @@ const checkDeleteBatch = async (data) => {
     return job
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, checkDeleteBatch)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
@@ -52,7 +56,8 @@ const moveImage = async (data) => {
     return movedFile.result
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, moveImage)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
@@ -64,7 +69,8 @@ const checkMoveBatch = async (data) => {
     return job
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, checkMoveBatch)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
@@ -76,25 +82,45 @@ const getLink = async (data) => {
     return file
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, getLink)
+    await handleDropboxError(error, dbx)
+    throw error
   }
 }
 
-const getThumbnail = async (data) => {
+const uploadImageToCloudflare = async (data) => {
+  const formData = new FormData()
+  formData.append('url', data.url)
   try {
-    const file = await dbx.filesGetThumbnailV2({
-      resource: {
-        '.tag': 'path',
-        path: data.path
-      },
-      size: data.mode ? data.mode : 'w480h320',
-      mode: 'fitone_bestfit',
-      format: 'jpeg'
-    })
-    return file
+    const uploadedFile = await axios.post(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    return `${process.env.FRONTEND_IMAGE_URL}/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/${uploadedFile.data.result.id}/`
   } catch (error) {
     console.log(error)
-    await handleDropboxError(error, dbx, data, getThumbnail)
+  }
+}
+
+const deleteImageFromCloudflare = async (data) => {
+  const split = data.cloudflareUrl.split('/')
+  const id = split[split.length - 2]
+  try {
+    await axios.delete(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
+        }
+      }
+    )
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -117,88 +143,99 @@ const uploadImage = async (req, res, next) => {
 
   const fileContent = Buffer.from(files.data)
 
-  const uploaded = await uploadImageToDropbox({
-    image: fileContent,
-    type: files.mimetype.split('/')[1]
-  })
+  try {
+    const uploaded = await uploadImageToDropbox({
+      image: fileContent,
+      type: files.mimetype.split('/')[1],
+      name: files.name
+    })
 
-  const link = await getLink({ path: uploaded.result.path_display })
+    const link = await getLink({ path: uploaded.result.path_display })
 
-  const image = await Image.create({
-    url: link.result.url.replace('dl=0', 'raw=1'),
-    path: uploaded.result.path_display
-  })
+    const image = await Image.create({
+      url: link.result.url.replace('dl=0', 'raw=1'),
+      path: uploaded.result.path_display
+    })
 
-  // All good
-  res.status(200).json({
-    id: image._id,
-    url: image.url,
-    path: image.path
-  })
+    // All good
+    res.status(200).json({
+      id: image._id,
+      url: image.url,
+      path: image.path
+    })
+  } catch (error) {
+    if (error.status === 401) {
+      return await uploadImage(req, res, next)
+    }
+    res.status(error.status).json({
+      error: true,
+      message: 'Error uploading image'
+    })
+  }
 }
 
 const moveAndGetLink = async (req, res) => {
-  const { slug, images, movePath, nextIndex } = req.body
+  const { slug, images, movePath } = req.body
 
   if (!dbx.auth.getAccessToken()) {
     dbx.auth.setAccessToken(req.app.locals.dropboxAccessToken)
   }
 
-  const entries = prepareImagesEntries(images, slug, movePath, nextIndex)
+  const entries = prepareImagesEntries(images, slug, movePath)
 
-  const filesMove = await moveImage({
-    entries
-  })
-
-  let retry = 20
-  while (retry) {
-    const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id })
-
-    if (job.result['.tag'] === 'complete') {
-      retry = 0
-    } else {
-      await sleep(1000)
-      retry -= 1
-    }
-  }
-
-  const result = []
-  for await (const [index, value] of entries.entries()) {
-    const a = new Date()
-
-    const thumbnail = await getThumbnail({ path: value.to_path })
-
-    const uploadThumbnail = await uploadImageToDropbox({
-      image: thumbnail.result.fileBinary,
-      type: 'jpg',
-      //regex for the last / in the path
-      path: value.to_path.replace(/\/(?!.*\/)/, '/thumbnail/')
+  try {
+    const filesMove = await moveImage({
+      entries
     })
 
-    const thumbnailLink = await getLink({
-      path: uploadThumbnail.result.path_display
-    })
+    let retry = 20
+    while (retry) {
+      const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id })
 
-    const image = await Image.findByIdAndUpdate(
-      images[index].id,
-      {
-        path: value.to_path,
-        url: images[index].url,
-        thumbnailUrl: thumbnailLink.result.url.replace('dl=0', 'raw=1'),
-        thumbnailPath: uploadThumbnail.result.path_display
-      },
-      {
-        new: true
+      if (job.result['.tag'] === 'complete') {
+        retry = 0
+      } else {
+        await sleep(1000)
+        retry -= 1
       }
-    )
-    result.push(image)
-    const b = new Date()
-    console.log('Time taken to get thumbnail:', b - a, images[index].id)
-  }
+    }
 
-  res.status(200).json({
-    images: result
-  })
+    const result = []
+    for await (const [index, value] of entries.entries()) {
+      const a = new Date()
+
+      const cloudflareLink = await uploadImageToCloudflare({
+        url: images[index].url
+      })
+
+      const image = await Image.findByIdAndUpdate(
+        images[index].id,
+        {
+          path: value.to_path,
+          url: images[index].url,
+          cloudflareUrl: cloudflareLink
+        },
+        {
+          new: true
+        }
+      )
+      result.push(image)
+      const b = new Date()
+      console.log('Time taken to get thumbnail:', b - a, images[index].id)
+    }
+
+    res.status(200).json({
+      images: result
+    })
+  } catch (error) {
+    if (error.status === 401) {
+      return await moveAndGetLink(req, res)
+    }
+    res.status(error.status).json({
+      error: true,
+      message: 'Error uploading image'
+    })
+  }
 }
 
 const deleteDropboxImages = async (req, res) => {
@@ -208,45 +245,58 @@ const deleteDropboxImages = async (req, res) => {
   }
 
   const entries = []
+  const imagesToDelete = []
 
-  folders.forEach((element) => {
-    entries.push({ path: element })
-  })
-
-  for await (const img of images) {
-    const image = await Image.findById(img.id).lean()
-    if (folders.length === 0) {
-      entries.push({ path: image.path })
-      entries.push({ path: image.thumbnailPath })
+  if (folders.length === 0) {
+    for await (const img of images) {
+      const image = await Image.findById(img.id).lean()
+      if (image) {
+        imagesToDelete.push(image)
+        entries.push({ path: image.path })
+      }
     }
-    await Image.findByIdAndDelete(img.id)
+  } else {
+    folders.forEach((element) => {
+      entries.push({ path: element })
+    })
   }
 
-  if (entries.length === 0) {
+  try {
+    const filesDelete = await deleteImage(entries)
+
+    let retry = 20
+    while (retry) {
+      const job = await checkDeleteBatch({
+        async_job_id: filesDelete.async_job_id
+      })
+
+      if (job.result['.tag'] === 'complete') {
+        retry = 0
+      } else {
+        await sleep(1000)
+        retry -= 1
+      }
+    }
+
+    for await (const img of imagesToDelete) {
+      if (img.cloudflareUrl) {
+        await deleteImageFromCloudflare(img)
+      }
+      await Image.findByIdAndDelete(img._id)
+    }
+
     res.status(200).json({
       success: true
     })
-  }
-
-  const filesDelete = await deleteImage(entries)
-
-  let retry = 20
-  while (retry) {
-    const job = await checkDeleteBatch({
-      async_job_id: filesDelete.async_job_id
-    })
-
-    if (job.result['.tag'] === 'complete') {
-      retry = 0
-    } else {
-      await sleep(1000)
-      retry -= 1
+  } catch (error) {
+    if (error.status === 401) {
+      return await deleteDropboxImages(req, res)
     }
+    res.status(error.status).json({
+      error: true,
+      message: 'Error deleting image'
+    })
   }
-
-  res.status(200).json({
-    success: true
-  })
 }
 
 const moveImagesToDeletedFolder = async (req, res) => {
@@ -258,50 +308,51 @@ const moveImagesToDeletedFolder = async (req, res) => {
   const deleteImages = []
   const databaseImages = []
 
-  for await (const img of images) {
-    const image = await Image.findById(img.id).lean()
-    databaseImages.push(image)
-    deleteImages.push({ path: image.path })
-    deleteImages.push({ path: image.thumbnailPath })
-  }
-
-  const entries = prepareImagesEntries(
-    deleteImages,
-    slug,
-    'Delete Folder',
-    0,
-    true
-  )
-
-  const filesMove = await moveImage({
-    entries
-  })
-
-  let retry = 20
-  while (retry) {
-    const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id })
-
-    if (job.result['.tag'] === 'complete') {
-      retry = 0
-    } else {
-      await sleep(1000)
-      retry -= 1
+  try {
+    for await (const img of images) {
+      const image = await Image.findById(img.id).lean()
+      databaseImages.push(image)
+      deleteImages.push({ path: image.path })
     }
-  }
 
-  for await (const img of databaseImages) {
-    await Image.findByIdAndUpdate(img._id, {
-      $set: {
-        path: entries.find((x) => x.from_path === img.path)?.to_path,
-        thumbnailPath: entries.find((x) => x.from_path === img.thumbnailPath)
-          ?.to_path
+    const entries = prepareImagesEntries(deleteImages, slug, 'Delete Folder')
+
+    const filesMove = await moveImage({
+      entries
+    })
+
+    let retry = 20
+    while (retry) {
+      const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id })
+
+      if (job.result['.tag'] === 'complete') {
+        retry = 0
+      } else {
+        await sleep(1000)
+        retry -= 1
       }
+    }
+
+    for await (const img of databaseImages) {
+      await Image.findByIdAndUpdate(img._id, {
+        $set: {
+          path: entries.find((x) => x.from_path === img.path)?.to_path
+        }
+      })
+    }
+
+    res.status(200).json({
+      success: true
+    })
+  } catch (error) {
+    if (error.status === 401) {
+      return await moveImagesToDeletedFolder(req, res)
+    }
+    res.status(error.status).json({
+      error: true,
+      message: 'Error moving image'
     })
   }
-
-  res.status(200).json({
-    success: true
-  })
 }
 
 const refreshToken = async () => {
@@ -325,30 +376,21 @@ const refreshToken = async () => {
   }
 }
 
-const handleDropboxError = async (error, dbx, data, cb) => {
+const handleDropboxError = async (error, dbx) => {
   if (error.status === 401) {
     const token = await refreshToken()
     if (token.data) {
       dbx.auth.setAccessToken(token.data.access_token)
-      cb(data)
     }
   }
   return null
 }
 
-const prepareImagesEntries = (
-  images,
-  slug,
-  path,
-  nextIndex,
-  autoRename = false
-) => {
+const prepareImagesEntries = (images, slug, path) => {
   return images.map((image, index) => {
     return {
       from_path: image.path,
-      to_path: autoRename
-        ? `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
-        : `/${path}/${slug}/${slug}-${index + nextIndex}.jpg`
+      to_path: `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
     }
   })
 }

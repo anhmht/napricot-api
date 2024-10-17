@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "yarn global add pm2",
     "migrate": "./node_modules/.bin/migrate up",
-    "start": "pm2-runtime start ecosystem.config.js --env"
+    "start": "pm2-runtime start ecosystem.config.js --env",
+    "eslint": "eslint index.js ",
+    "eslint:fix": "yarn eslint --fix"
   },
   "author": "",
   "license": "ISC",

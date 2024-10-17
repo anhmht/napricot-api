@@ -1,6 +1,8 @@
 module.exports = {
+  extends: 'standard',
+  modules: ['express'],
   env: {
-    browser: true,
-    node: true
+    node: true,
+    browser: true
   }
 }
