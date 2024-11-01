@@ -19,6 +19,7 @@ const checkoutRoutes = require('./routes/checkout')
 const stripeRoutes = require('./routes/stripe')
 const postRoutes = require('./routes/post')
 const productRoutes = require('./routes/product')
+const slackRoutes = require('./routes/slack')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -80,6 +81,7 @@ app.use('/email', emailRoutes)
 app.use('/checkout', checkoutRoutes)
 app.use('/post', postRoutes)
 app.use('/product', productRoutes)
+app.use('/slack', slackRoutes)
 
 app.use('/', (req, res) => {
   return res.json({
