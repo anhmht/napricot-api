@@ -4,7 +4,6 @@ const clearCloudflareCached = async (req, res, next) => {
   const {
     event: { bot_id, channel }
   } = req.body
-  console.log(req.body)
 
   /*
    * bot: Heroku ChatOps
@@ -33,7 +32,7 @@ const clearCloudflareCached = async (req, res, next) => {
     }
 
     await axios.post(
-      `https://hooks.slack.com/services/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`,
+      `https://hooks.slack.com/services/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`,
       {
         attachments: [
           {
