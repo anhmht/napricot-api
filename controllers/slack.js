@@ -32,7 +32,7 @@ const clearCloudflareCached = async (req, res, next) => {
     }
 
     await axios.post(
-      `https://hooks.slack.com/services/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`,
+      `https://hooks.slack.com/services/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`,
       {
         attachments: [
           {
