@@ -101,6 +101,12 @@ const uploadImageToCloudflare = async (data) => {
         }
       }
     )
+    console.log(
+      process.env.CLOUDFLARE_ACCOUNT_ID,
+      process.env.CLOUDFLARE_API_TOKEN
+    )
+
+    console.log('Cloudflare link:', uploadedFile)
     return `${process.env.FRONTEND_IMAGE_URL}/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/${uploadedFile.data.result.id}/`
   } catch (error) {
     console.log(error)
@@ -207,6 +213,8 @@ const moveAndGetLink = async (req, res) => {
       const cloudflareLink = await uploadImageToCloudflare({
         url: images[index].url
       })
+
+      console.log('Cloudflare link:', cloudflareLink)
 
       const image = await Image.findByIdAndUpdate(
         images[index].id,
