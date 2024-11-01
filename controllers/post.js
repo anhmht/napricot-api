@@ -60,6 +60,8 @@ const createPost = async (req, res, next) => {
 
       let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
 
+      console.log(data)
+
       data.images.forEach((element) => {
         if (content.includes(element.url) && element.cloudflareUrl) {
           content = content.replace(
