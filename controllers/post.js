@@ -60,8 +60,6 @@ const createPost = async (req, res, next) => {
 
       let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
 
-      console.log(data)
-
       data.images.forEach((element) => {
         if (content.includes(element.url) && element.cloudflareUrl) {
           content = content.replace(
@@ -279,18 +277,18 @@ const deletePosts = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page, limit, sort, title, categoryId } = req.query
+    const { page, limit, sort, title, categoryId, status } = req.query
 
     const search = createSearchObject({
       searchLikeObject: { title },
-      searchEqualObject: { categoryId }
+      searchEqualObject: { categoryId, status }
     })
 
     const posts = await Post.find(search)
       .select('-content')
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ [sort ? sort : 'createdAt']: 'desc' })
+      .sort({ [sort || 'createdAt']: 'desc' })
       .lean()
 
     const total = await Post.countDocuments(search).exec()
@@ -332,7 +330,8 @@ const getPostBySlug = async (req, res, next) => {
     const { slug } = req.params
 
     const post = await Post.findOne({
-      slug
+      slug,
+      status: 'published'
     })
 
     if (!post) {
