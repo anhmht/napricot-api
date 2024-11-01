@@ -4,11 +4,13 @@ const clearCloudflareCached = async (req, res, next) => {
   const {
     event: { bot_id, channel }
   } = req.body
+  console.log(req.body)
+
   /*
    * bot: Heroku ChatOps
    * channel: #narpicot-web-build
    */
-  if (bot_id !== 'B07AW7M5XV2' && channel !== 'C07BGFT0U5N')
+  if (bot_id !== 'B07AW7M5XV2' || channel !== 'C07BGFT0U5N')
     return res.status(200).json({ success: true })
 
   try {
