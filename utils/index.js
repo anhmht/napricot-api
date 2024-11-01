@@ -26,10 +26,8 @@ const getMissingFields = (data, fields) => {
 
 const callMoveAndGetLink = async ({ slug, images, movePath, req }) => {
   try {
-    console.log(`${req.protocol}://${req.get('host')}/images/move`)
-
     return await axios.post(
-      `${req.protocol}://${req.get('host')}/images/move`,
+      `https://${req.get('host')}/images/move`,
       {
         slug,
         images,
@@ -49,7 +47,7 @@ const callMoveAndGetLink = async ({ slug, images, movePath, req }) => {
 const callDeleteImages = async ({ images, folders, req }) => {
   try {
     return await axios.post(
-      `${req.protocol}://${req.get('host')}/images/delete`,
+      `https://${req.get('host')}/images/delete`,
       {
         images,
         folders
@@ -68,7 +66,7 @@ const callDeleteImages = async ({ images, folders, req }) => {
 const callMoveImagesToDeletedFolder = async ({ images, slug, req }) => {
   try {
     return await axios.post(
-      `${req.protocol}://${req.get('host')}/images/move-to-deleted-folder`,
+      `https://${req.get('host')}/images/move-to-deleted-folder`,
       {
         images,
         slug
