@@ -12,6 +12,8 @@ const clearCloudflareCached = async (req, res, next) => {
   if (bot_id !== 'B07AW7M5XV2' || channel !== 'C07BGFT0U5N')
     return res.status(200).json({ success: true })
 
+  console.log(req.body.event.blocks)
+
   try {
     const { data } = await axios.post(
       `https://api.cloudflare.com/client/v4/zones/${process.env.CLOUDFLARE_ZONE_ID}/purge_cache`,
