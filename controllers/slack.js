@@ -12,7 +12,7 @@ const clearCloudflareCached = async (req, res, next) => {
   if (bot_id !== 'B07AW7M5XV2' || channel !== 'C07BGFT0U5N')
     return res.status(200).json({ success: true })
 
-  console.log(req.body.event.blocks)
+  console.log(req.body.event)
 
   try {
     const { data } = await axios.post(
