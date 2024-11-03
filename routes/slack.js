@@ -3,7 +3,7 @@ const { clearCloudflareCached } = require('../controllers/slack')
 
 const router = express.Router()
 
-// login
+// purge Cloudflare cache
 router.post('/cloudflare/purge', clearCloudflareCached)
 
 module.exports = router

@@ -5,6 +5,7 @@ const {
   callDeleteImages,
   createSearchObject
 } = require('../utils')
+const { deploy } = require('./heroku')
 
 const createPost = async (req, res, next) => {
   try {
@@ -69,7 +70,7 @@ const createPost = async (req, res, next) => {
         }
       })
 
-      await Post.findByIdAndUpdate(
+      const final = await Post.findByIdAndUpdate(
         post._id,
         {
           $set: {
@@ -89,7 +90,12 @@ const createPost = async (req, res, next) => {
           }
         },
         { new: true }
-      )
+      ).lean()
+
+      delete final.content
+      delete final.images
+
+      await deploy()
     } catch (error) {
       return next(error)
     }
@@ -204,6 +210,8 @@ const updatePost = async (req, res, next) => {
         },
         { new: true }
       )
+
+      await deploy()
     } catch (error) {
       return next(error)
     }
@@ -267,6 +275,8 @@ const deletePosts = async (req, res, next) => {
         folders: posts.map((post) => `/Post/${post.slug}`),
         req
       })
+
+      await deploy()
     } catch (error) {
       return next(error)
     }
