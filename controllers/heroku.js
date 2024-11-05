@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { sendSlackMessage } = require('./slack')
+const { sendSlackMessage, messageType } = require('./slack')
 
 const deploy = async () => {
   try {
@@ -20,7 +20,7 @@ const deploy = async () => {
     await sendSlackMessage({
       channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
       message: 'Deploying master branch to Heroku. :rocket:',
-      type: 'INFO'
+      type: messageType.INFO
     })
   } catch (error) {
     console.log(error)

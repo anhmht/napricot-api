@@ -6,6 +6,7 @@ const {
   createSearchObject
 } = require('../utils')
 const { deploy } = require('./heroku')
+const { sendLogMessage, messageType, dataTypes } = require('./slack')
 
 const createPost = async (req, res, next) => {
   try {
@@ -92,8 +93,13 @@ const createPost = async (req, res, next) => {
         { new: true }
       ).lean()
 
-      delete final.content
-      delete final.images
+      await sendLogMessage({
+        channel: process.env.SLACK_WEBHOOK_POST_LOG,
+        message: `Napricot post *created*`,
+        type: messageType.SUCCESS,
+        data: final,
+        dataType: dataTypes.POST
+      })
 
       await deploy()
     } catch (error) {
@@ -119,6 +125,8 @@ const updatePost = async (req, res, next) => {
       })
       return next(new Error('Post not found'))
     }
+
+    delete req.body.slug
 
     const updatedPost = await Post.findByIdAndUpdate(
       id,
@@ -182,7 +190,7 @@ const updatePost = async (req, res, next) => {
 
       const updateImage = data.images.find((img) => img._id === image.id)
 
-      await Post.findByIdAndUpdate(
+      const final = await Post.findByIdAndUpdate(
         id,
         {
           $set: {
@@ -209,7 +217,15 @@ const updatePost = async (req, res, next) => {
           }
         },
         { new: true }
-      )
+      ).lean()
+
+      await sendLogMessage({
+        channel: process.env.SLACK_WEBHOOK_POST_LOG,
+        message: `Napricot post *updated*`,
+        type: messageType.WARNING,
+        data: final,
+        dataType: dataTypes.POST
+      })
 
       await deploy()
     } catch (error) {
@@ -275,6 +291,16 @@ const deletePosts = async (req, res, next) => {
         folders: posts.map((post) => `/Post/${post.slug}`),
         req
       })
+
+      for (const element of posts) {
+        await sendLogMessage({
+          channel: process.env.SLACK_WEBHOOK_POST_LOG,
+          message: `Napricot post *delete*`,
+          type: messageType.ERROR,
+          data: element,
+          dataType: dataTypes.POST
+        })
+      }
 
       await deploy()
     } catch (error) {
