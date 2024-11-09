@@ -1,13 +1,160 @@
-<div style="padding: 10px; background-color: #003375">
-  <div style="padding: 10px; background-color: white;">
-    <h4 style="color: #0085ff">Hi, {name}</h4>
-    <p>We received your request for a verification code to use with your Napricot account.</p>
-    <h4>Please enter the following verification code when prompted in your browser.</h4>
-    <span style="color: black">This is your verification code: <strong>{code}</strong></span>
-    <p>If you didn't request this code, you can safely ignore this email. Someone else might have typed your email
-      address by
-      mistake.</p>
+<div class="email-template">
+  <a class="logo" href="https://napricot.com" target="_blank">
+    <img
+      src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/8a7c1d2c-57eb-4120-5bb6-47e54128e600/large500"
+      alt="Napricot Logo"
+    />
+  </a>
+  <div>
+    <h4 style="font-size: 2.8rem; margin: 0">Hi, {name}</h4>
+  </div>
+  <div style="background: #fff; padding: 32px; padding-bottom: 0">
+    <p style="margin: 0">Hello, {name}</p>
+    <p>
+      We received your request for a verification code to use with your Napricot
+      account.
+    </p>
+    <h4>
+      Please enter the following verification code when prompted in your
+      browser.
+    </h4>
+    <p>This is your verification code: <strong>{code}</strong></p>
+    <a
+      style="text-decoration: none; color: #ec5825"
+      href="{link}"
+      target="_blank"
+    >
+      Click here </a
+    >to verify your email address
+    <p>
+      If you didn't request this code, you can safely ignore this email. Someone
+      else might have typed your email address by mistake.
+    </p>
     <p>Thanks,</p>
     <p>The Napricot team</p>
+    <div
+      style="text-align: center; padding: 32px 0; border-top: 1px solid #dcdcdc"
+    >
+      <a href="{link}" target="_blank">
+        <button
+          style="
+            padding: 16px;
+            border: none;
+            color: #fff;
+            background-color: #ec5825;
+            border-radius: 4px;
+            cursor: pointer;
+          "
+        >
+          Go to email verification page
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="social">
+      <a class="facebook" href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/09f14fb8-986c-4838-4925-be51d3b3ea00/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+      <a class="twitter" href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/a7d59c2e-bd3e-4fbf-fa5a-3cf0ec057c00/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+      <a href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/0fe0f1ad-2e25-43b2-7166-78eb3114b200/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+      <a class="etsy" href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/a45e327b-ab9d-44c8-24f4-a1ce90738c00/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+      <a class="walmart" href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/88a0c16a-1739-449d-ff6c-b6913a2ed900/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+      <a href="#">
+        <img
+          src="https://napricot.com/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/848241ea-8dcc-40d1-4730-85dd89c29300/avatar40"
+          alt="Napricot Logo"
+        />
+      </a>
+    </div>
+    <div style="text-align: center; margin-top: 16px">
+      Copyright © 2024 by <strong>Napricot</strong>
+    </div>
   </div>
 </div>
+<style>
+  .email-template {
+    font-family: 'Roboto', sans-serif;
+    color: #1f1f1f;
+    padding: 24px 0;
+    background-color: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    justify-content: center;
+    align-items: center;
+  }
+  .logo img {
+    width: 250px;
+    display: block;
+  }
+  .footer a {
+    display: flex;
+    padding: 8px;
+    border: 1px solid #dcdcdc;
+    border-radius: 50%;
+  }
+  .footer img {
+    width: 40px;
+    height: 40px;
+  }
+  .footer .facebook {
+    align-items: center;
+    padding: 8px 13px;
+  }
+  .footer .twitter {
+    align-items: center;
+    padding: 8px 13px;
+  }
+  .twitter img {
+    width: 30px;
+    height: 30px;
+  }
+  .facebook img {
+    width: 30px;
+    height: 30px;
+  }
+  .footer .etsy {
+    align-items: center;
+    padding: 8px 13px;
+  }
+  .etsy img {
+    width: 30px;
+    height: 30px;
+  }
+  .footer .walmart {
+    align-items: center;
+    padding: 8px 13px;
+  }
+  .walmart img {
+    width: 30px;
+    height: 30px;
+  }
+  .social {
+    display: flex;
+    gap: 16px;
+  }
+</style>

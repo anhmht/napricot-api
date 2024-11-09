@@ -43,23 +43,6 @@ const createUser = async (req, res, next) => {
       verifyCode: await hashPassword(verificationCode)
     })
 
-    sendMail({
-      from: 'Napricot <support@napricot.com>',
-      emails: [email],
-      subject: 'Verify your Napricot account',
-      template: 'email-verification.html',
-      params: [
-        {
-          key: 'name',
-          value: name
-        },
-        {
-          key: 'code',
-          value: verificationCode
-        }
-      ]
-    })
-
     let token
     try {
       //Creating jwt token
@@ -81,6 +64,27 @@ const createUser = async (req, res, next) => {
       })
       return next(error)
     }
+
+    sendMail({
+      from: 'Napricot <support@napricot.com>',
+      emails: [email],
+      subject: 'Verify your Napricot account',
+      template: 'email-verification.html',
+      params: [
+        {
+          key: 'name',
+          value: name
+        },
+        {
+          key: 'code',
+          value: verificationCode
+        },
+        {
+          key: 'link',
+          value: `${process.env.FRONTEND_URL}/email-verification?token=${token}`
+        }
+      ]
+    })
 
     res.status(200).json({
       userId: user._id,
