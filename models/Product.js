@@ -18,13 +18,12 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       id: {
-        type: String,
-        required: [true, 'Product image is required']
+        type: String
       },
       url: {
         type: String
       },
-      thumbnail: {
+      cloudflareUrl: {
         type: String
       }
     },
@@ -36,7 +35,7 @@ const productSchema = new mongoose.Schema(
         url: {
           type: String
         },
-        thumbnail: {
+        cloudflareUrl: {
           type: String
         }
       }
@@ -49,7 +48,7 @@ const productSchema = new mongoose.Schema(
         url: {
           type: String
         },
-        thumbnail: {
+        cloudflareUrl: {
           type: String
         }
       }
@@ -125,9 +124,17 @@ const productSchema = new mongoose.Schema(
         type: String
       }
     ],
+    keywords: [
+      {
+        type: String
+      }
+    ],
     isDeleted: {
       type: Boolean,
       default: false
+    },
+    updatedBy: {
+      type: String
     }
   },
   {

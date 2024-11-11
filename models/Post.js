@@ -62,7 +62,15 @@ const postSchema = new mongoose.Schema(
       {
         type: String
       }
-    ]
+    ],
+    keywords: [
+      {
+        type: String
+      }
+    ],
+    updatedBy: {
+      type: String
+    }
   },
   {
     timestamps: true
