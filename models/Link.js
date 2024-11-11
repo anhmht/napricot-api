@@ -24,7 +24,13 @@ const linkSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'products'
       }
-    ]
+    ],
+    author: {
+      type: String
+    },
+    updatedBy: {
+      type: String
+    }
   },
   {
     timestamps: true

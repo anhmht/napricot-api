@@ -139,7 +139,7 @@ const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: `Author: *${content.authorName}*`
+                  text: `Author: *${content.authorName}* | Updated by: *${content.updatedBy}*`
                 }
               ]
             },
@@ -183,10 +183,12 @@ const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
 }
 
 const getPostData = async (post) => {
-  const user = await User.findById(post.author).lean()
+  const author = await User.findById(post.author).lean()
+  const updatedBy = await User.findById(post.updatedBy).lean()
   const category = await Category.findById(post.categoryId).lean()
   return {
-    authorName: user.name,
+    authorName: author.name,
+    updatedBy: updatedBy.name,
     category: category.name,
     slug: post.slug,
     title: post.title,
