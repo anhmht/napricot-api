@@ -101,7 +101,9 @@ const createPost = async (req, res, next) => {
         dataType: dataTypes.POST
       })
 
-      await deploy()
+      if (final.status === 'published') {
+        await deploy()
+      }
     } catch (error) {
       return next(error)
     }
@@ -227,7 +229,9 @@ const updatePost = async (req, res, next) => {
         dataType: dataTypes.POST
       })
 
-      await deploy()
+      if (final.status === 'published') {
+        await deploy()
+      }
     } catch (error) {
       return next(error)
     }
