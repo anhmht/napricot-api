@@ -1,6 +1,7 @@
 const axios = require('axios')
 const User = require('../models/User')
 const Category = require('../models/Category')
+const { submitSitemap } = require('./google')
 
 const messageType = {
   SUCCESS: '#3ea556',
@@ -47,11 +48,13 @@ const clearCloudflareCached = async (req, res, next) => {
         })
       }
 
-      sendSlackMessage({
+      await sendSlackMessage({
         channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
         message: 'Clear cache from Cloudflare. :white_check_mark:',
         type: messageType.SUCCESS
       })
+
+      await submitSitemap()
 
       res.status(200).json({
         success: data.success
