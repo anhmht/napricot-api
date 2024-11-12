@@ -54,9 +54,9 @@ const clearCloudflareCached = async (req, res, next) => {
         type: messageType.SUCCESS
       })
 
-      console.log(attachments[0])
-
-      await submitSitemap()
+      if (attachments[0].text.includes('|napricot-web>')) {
+        await submitSitemap()
+      }
 
       res.status(200).json({
         success: data.success

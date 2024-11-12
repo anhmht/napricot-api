@@ -26,6 +26,8 @@ const submitSitemap = async () => {
     })
     console.log('Sitemap submitted successfully!')
 
+    console.log('Sending slack message...', messageType)
+
     await sendSlackMessage({
       channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
       message:
