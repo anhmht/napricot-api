@@ -54,6 +54,8 @@ const clearCloudflareCached = async (req, res, next) => {
         type: messageType.SUCCESS
       })
 
+      console.log(attachments[0].text)
+
       await submitSitemap()
 
       res.status(200).json({

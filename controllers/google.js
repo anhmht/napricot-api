@@ -5,8 +5,6 @@ const submitSitemap = async () => {
   // Parse credentials from an environment variable
   const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
 
-  console.log(credentials)
-
   const auth = new google.auth.GoogleAuth({
     credentials: credentials,
     scopes: ['https://www.googleapis.com/auth/webmasters']
