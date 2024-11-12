@@ -1,7 +1,7 @@
 const axios = require('axios')
 const User = require('../models/User')
 const Category = require('../models/Category')
-const { submitSitemap } = require('./google')
+const { google } = require('googleapis')
 
 const messageType = {
   SUCCESS: '#3ea556',
@@ -64,6 +64,42 @@ const clearCloudflareCached = async (req, res, next) => {
     } catch (error) {
       return next(error)
     }
+  }
+}
+
+const submitSitemap = async () => {
+  // Parse credentials from an environment variable
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: credentials,
+    scopes: ['https://www.googleapis.com/auth/webmasters']
+  })
+
+  const client = await auth.getClient()
+  const webmasters = google.webmasters({
+    version: 'v3',
+    auth: client
+  })
+
+  const siteUrl = 'sc-domain:napricot.com'
+  const sitemapUrl = 'https://napricot.com/sitemap.xml'
+
+  try {
+    await webmasters.sitemaps.submit({
+      siteUrl: siteUrl,
+      feedpath: sitemapUrl
+    })
+    console.log('Sitemap submitted successfully!')
+
+    await sendSlackMessage({
+      channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
+      message:
+        'Submit new sitemap.xml to google search console. :confetti_ball:',
+      type: 'SUCCESS'
+    })
+  } catch (error) {
+    console.error('Error submitting sitemap:', error)
   }
 }
 
