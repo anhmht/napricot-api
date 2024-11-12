@@ -18,7 +18,7 @@ const submitSitemap = async () => {
     auth: client
   })
 
-  const siteUrl = 'https://napricot.com'
+  const siteUrl = 'sc-domain:napricot.com'
   const sitemapUrl = 'https://napricot.com/sitemap.xml'
 
   try {
