@@ -1,6 +1,7 @@
 const axios = require('axios')
 const User = require('../models/User')
 const Category = require('../models/Category')
+const { google } = require('googleapis')
 
 const messageType = {
   SUCCESS: '#3ea556',
@@ -47,11 +48,15 @@ const clearCloudflareCached = async (req, res, next) => {
         })
       }
 
-      sendSlackMessage({
+      await sendSlackMessage({
         channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
         message: 'Clear cache from Cloudflare. :white_check_mark:',
-        type: messageType.SUCCESS
+        type: 'SUCCESS'
       })
+
+      if (attachments[0].text.includes('|napricot-web>')) {
+        await submitSitemap()
+      }
 
       res.status(200).json({
         success: data.success
@@ -62,13 +67,49 @@ const clearCloudflareCached = async (req, res, next) => {
   }
 }
 
+const submitSitemap = async () => {
+  // Parse credentials from an environment variable
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: credentials,
+    scopes: ['https://www.googleapis.com/auth/webmasters']
+  })
+
+  const client = await auth.getClient()
+  const webmasters = google.webmasters({
+    version: 'v3',
+    auth: client
+  })
+
+  const siteUrl = 'sc-domain:napricot.com'
+  const sitemapUrl = 'https://napricot.com/sitemap.xml'
+
+  try {
+    await webmasters.sitemaps.submit({
+      siteUrl: siteUrl,
+      feedpath: sitemapUrl
+    })
+    console.log('Sitemap submitted successfully!')
+
+    await sendSlackMessage({
+      channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
+      message:
+        'Submit new sitemap.xml to google search console. :confetti_ball:',
+      type: 'SUCCESS'
+    })
+  } catch (error) {
+    console.error('Error submitting sitemap:', error)
+  }
+}
+
 const sendSlackMessage = async ({ channel, message, type }) => {
   return await axios.post(
     `${channel}`,
     {
       attachments: [
         {
-          color: type,
+          color: messageType[type],
           fallback: message,
           blocks: [
             {
@@ -200,6 +241,5 @@ module.exports = {
   clearCloudflareCached,
   sendSlackMessage,
   sendLogMessage,
-  messageType,
   dataTypes
 }

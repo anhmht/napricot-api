@@ -26,6 +26,7 @@
     "express-fileupload": "^1.5.1",
     "express-query-boolean": "^2.0.0",
     "fs": "^0.0.1-security",
+    "googleapis": "^144.0.0",
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
