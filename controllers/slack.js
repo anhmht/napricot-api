@@ -51,7 +51,7 @@ const clearCloudflareCached = async (req, res, next) => {
       await sendSlackMessage({
         channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
         message: 'Clear cache from Cloudflare. :white_check_mark:',
-        type: messageType.SUCCESS
+        type: 'SUCCESS'
       })
 
       if (attachments[0].text.includes('|napricot-web>')) {
@@ -73,7 +73,7 @@ const sendSlackMessage = async ({ channel, message, type }) => {
     {
       attachments: [
         {
-          color: type,
+          color: messageType[type],
           fallback: message,
           blocks: [
             {
@@ -205,6 +205,5 @@ module.exports = {
   clearCloudflareCached,
   sendSlackMessage,
   sendLogMessage,
-  messageType,
   dataTypes
 }

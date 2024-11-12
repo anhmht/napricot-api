@@ -6,7 +6,7 @@ const {
   createSearchObject
 } = require('../utils')
 const { deploy } = require('./heroku')
-const { sendLogMessage, messageType, dataTypes } = require('./slack')
+const { sendLogMessage, dataTypes } = require('./slack')
 
 const createPost = async (req, res, next) => {
   try {
@@ -96,7 +96,7 @@ const createPost = async (req, res, next) => {
       await sendLogMessage({
         channel: process.env.SLACK_WEBHOOK_POST_LOG,
         message: `Napricot post *created*`,
-        type: messageType.SUCCESS,
+        type: 'SUCCESS',
         data: final,
         dataType: dataTypes.POST
       })
@@ -224,7 +224,7 @@ const updatePost = async (req, res, next) => {
       await sendLogMessage({
         channel: process.env.SLACK_WEBHOOK_POST_LOG,
         message: `Napricot post *updated*`,
-        type: messageType.WARNING,
+        type: 'WARNING',
         data: final,
         dataType: dataTypes.POST
       })
@@ -300,7 +300,7 @@ const deletePosts = async (req, res, next) => {
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG,
           message: `Napricot post *delete*`,
-          type: messageType.ERROR,
+          type: 'ERROR',
           data: element,
           dataType: dataTypes.POST
         })

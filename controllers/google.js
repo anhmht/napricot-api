@@ -1,5 +1,5 @@
 const { google } = require('googleapis')
-const { sendSlackMessage, messageType } = require('./slack')
+const { sendSlackMessage } = require('./slack')
 
 const submitSitemap = async () => {
   // Parse credentials from an environment variable
@@ -26,13 +26,11 @@ const submitSitemap = async () => {
     })
     console.log('Sitemap submitted successfully!')
 
-    console.log('Sending slack message...', messageType)
-
     await sendSlackMessage({
       channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
       message:
         'Submit new sitemap.xml to google search console. :confetti_ball:',
-      type: messageType.SUCCESS
+      type: 'SUCCESS'
     })
   } catch (error) {
     console.error('Error submitting sitemap:', error)
