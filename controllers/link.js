@@ -66,7 +66,9 @@ const createLink = async (req, res, next) => {
     const link = await Link.create({
       ...req.body,
       posts: [],
-      products: []
+      products: [],
+      author: res.locals.user.userId,
+      updatedBy: res.locals.user.userId
     })
 
     res.status(200).json({
@@ -94,7 +96,7 @@ const updateLink = async (req, res, next) => {
     const updatedLink = await Link.findByIdAndUpdate(
       id,
       {
-        $set: req.body
+        $set: { ...req.body, updatedBy: res.locals.user.userId }
       },
       { new: true }
     )

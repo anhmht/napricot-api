@@ -19,8 +19,7 @@ const createPost = async (req, res, next) => {
     const missingField = getMissingFields(req.body, [
       'title',
       'categoryId',
-      'content',
-      'author'
+      'content'
     ])
     if (missingField) {
       res.status(400).json({
@@ -45,7 +44,9 @@ const createPost = async (req, res, next) => {
     }
 
     const post = await Post.create({
-      ...req.body
+      ...req.body,
+      author: res.locals.user.userId,
+      updatedBy: res.locals.user.userId
     })
 
     res.status(200).json({
@@ -133,7 +134,7 @@ const updatePost = async (req, res, next) => {
     const updatedPost = await Post.findByIdAndUpdate(
       id,
       {
-        $set: req.body
+        $set: { ...req.body, updatedBy: res.locals.user.userId }
       },
       { new: true }
     ).lean()
