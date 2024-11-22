@@ -188,7 +188,7 @@ const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `*<https://napricot.com/post/${content.slug}|${content.title}>*\n\nStatus: \`draft\`\n\nCategory: ${content.category}`
+                text: `*<https://napricot.com/post/${content.slug}|${content.title}>*\n\nStatus: \`${content.status}\`\n\nCategory: ${content.category}`
               },
               accessory: {
                 type: 'image',
@@ -233,7 +233,8 @@ const getPostData = async (post) => {
     category: category.name,
     slug: post.slug,
     title: post.title,
-    image: post.image.cloudflareUrl + '/hero'
+    image: post.image.cloudflareUrl + '/hero',
+    status: post.status
   }
 }
 
