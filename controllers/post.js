@@ -326,7 +326,7 @@ const getPosts = async (req, res, next) => {
     })
 
     const posts = await Post.find(search)
-      .select('-content')
+      // .select('-content') for sitemap generator
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ [sort || 'createdAt']: 'desc' })
