@@ -27,6 +27,14 @@ const deploy = async () => {
   }
 }
 
+const deployFromWeb = async (req, res, next) => {
+  await deploy()
+  res.status(200).json({
+    success: true
+  })
+}
+
 module.exports = {
-  deploy
+  deploy,
+  deployFromWeb
 }
