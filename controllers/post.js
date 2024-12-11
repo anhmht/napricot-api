@@ -5,7 +5,6 @@ const {
   callDeleteImages,
   createSearchObject
 } = require('../utils')
-const { deploy } = require('./heroku')
 const { sendLogMessage, dataTypes } = require('./slack')
 
 const createPost = async (req, res, next) => {
@@ -101,10 +100,6 @@ const createPost = async (req, res, next) => {
         data: final,
         dataType: dataTypes.POST
       })
-
-      if (final.status === 'published') {
-        await deploy()
-      }
     } catch (error) {
       return next(error)
     }
@@ -229,10 +224,6 @@ const updatePost = async (req, res, next) => {
         data: final,
         dataType: dataTypes.POST
       })
-
-      if (final.status === 'published') {
-        await deploy()
-      }
     } catch (error) {
       return next(error)
     }
@@ -306,8 +297,6 @@ const deletePosts = async (req, res, next) => {
           dataType: dataTypes.POST
         })
       }
-
-      await deploy()
     } catch (error) {
       return next(error)
     }
