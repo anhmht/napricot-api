@@ -162,7 +162,7 @@ const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
     {
       attachments: [
         {
-          color: type,
+          color: messageType[type],
           fallback: message,
           blocks: [
             {
