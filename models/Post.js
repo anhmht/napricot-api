@@ -68,6 +68,10 @@ const postSchema = new mongoose.Schema(
         type: String
       }
     ],
+    uploading: {
+      type: Boolean,
+      default: false
+    },
     updatedBy: {
       type: String
     }

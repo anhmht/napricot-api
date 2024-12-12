@@ -44,6 +44,7 @@ const createPost = async (req, res, next) => {
 
     const post = await Post.create({
       ...req.body,
+      uploading: true,
       author: res.locals.user.userId,
       updatedBy: res.locals.user.userId
     })
@@ -87,7 +88,8 @@ const createPost = async (req, res, next) => {
                 url: img.url,
                 cloudflareUrl: img.cloudflareUrl
               })),
-            content
+            content,
+            uploading: false
           }
         },
         { new: true }
@@ -129,7 +131,11 @@ const updatePost = async (req, res, next) => {
     const updatedPost = await Post.findByIdAndUpdate(
       id,
       {
-        $set: { ...req.body, updatedBy: res.locals.user.userId }
+        $set: {
+          ...req.body,
+          updatedBy: res.locals.user.userId,
+          uploading: true
+        }
       },
       { new: true }
     ).lean()
@@ -211,7 +217,8 @@ const updatePost = async (req, res, next) => {
                   : img.cloudflareUrl
               }
             }),
-            content: updatedContent
+            content: updatedContent,
+            uploading: false
           }
         },
         { new: true }
