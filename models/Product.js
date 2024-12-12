@@ -133,6 +133,10 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    uploading: {
+      type: Boolean,
+      default: false
+    },
     updatedBy: {
       type: String
     }
