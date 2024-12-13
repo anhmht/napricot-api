@@ -9,6 +9,7 @@ const fileUpload = require('express-fileupload')
 const errorHandler = require('./middlewares/error')
 const cors = require('cors')
 const boolParser = require('express-query-boolean')
+const { WebSocketServer } = require('ws')
 
 const userRoutes = require('./routes/users')
 const authRoutes = require('./routes/auth')
@@ -103,6 +104,28 @@ const server = app.listen(port, () => {
 //   console.log(`Server started listening on ${port}`)
 //   process.send('ready')
 // })
+
+// WebSocket setup
+const wss = new WebSocketServer({ server })
+
+wss.on('connection', (ws) => {
+  console.log('Client connected')
+
+  ws.on('message', (data) => {
+    console.log('Received:', data)
+
+    // Echo the message back to all connected clients
+    wss.clients.forEach((client) => {
+      if (client.readyState === client.OPEN) {
+        client.send(data)
+      }
+    })
+  })
+
+  ws.on('close', () => {
+    console.log('Client disconnected')
+  })
+})
 
 process.on('unhandledRejection', (error) => {
   console.log(`Logged Error: ${error}`)
