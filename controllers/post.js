@@ -5,6 +5,7 @@ const {
   callDeleteImages,
   createSearchObject
 } = require('../utils')
+const { broadcast, notificationType } = require('./webSocket')
 const { sendLogMessage, dataTypes } = require('./slack')
 
 const createPost = async (req, res, next) => {
@@ -94,6 +95,12 @@ const createPost = async (req, res, next) => {
         },
         { new: true }
       ).lean()
+
+      await broadcast({
+        type: notificationType.POST,
+        id: final._id,
+        uploading: false
+      })
 
       await sendLogMessage({
         channel: process.env.SLACK_WEBHOOK_POST_LOG,
@@ -223,6 +230,12 @@ const updatePost = async (req, res, next) => {
         },
         { new: true }
       ).lean()
+
+      await broadcast({
+        type: notificationType.POST,
+        id: final._id,
+        uploading: false
+      })
 
       await sendLogMessage({
         channel: process.env.SLACK_WEBHOOK_POST_LOG,
