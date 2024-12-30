@@ -18,6 +18,7 @@ const createPost = async (req, res, next) => {
     } = req.body
     const missingField = getMissingFields(req.body, [
       'title',
+      'slug',
       'categoryId',
       'content'
     ])
@@ -121,7 +122,22 @@ const updatePost = async (req, res, next) => {
   try {
     const { id } = req.params
 
-    const { content, image, images } = req.body
+    const { content, image, images, slug } = req.body
+
+    const missingField = getMissingFields(req.body, [
+      'title',
+      'slug',
+      'categoryId',
+      'content'
+    ])
+    if (missingField) {
+      res.status(400).json({
+        error: true,
+        field: missingField,
+        message: `${missingField} is required`
+      })
+      return next(new Error('missing required field'))
+    }
 
     const post = await Post.findById(id)
 
@@ -133,7 +149,20 @@ const updatePost = async (req, res, next) => {
       return next(new Error('Post not found'))
     }
 
-    delete req.body.slug
+    if (slug !== post.slug) {
+      const isPostExists = await Post.findOne({
+        slug
+      })
+
+      if (isPostExists) {
+        res.status(404).json({
+          error: true,
+          field: 'slug',
+          message: 'Post already exists'
+        })
+        return next(new Error('Post already exists'))
+      }
+    }
 
     const updatedPost = await Post.findByIdAndUpdate(
       id,
