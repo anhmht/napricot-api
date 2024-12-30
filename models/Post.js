@@ -72,6 +72,9 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    externalUrl: {
+      type: String
+    },
     updatedBy: {
       type: String
     }
