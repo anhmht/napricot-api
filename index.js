@@ -22,6 +22,7 @@ const productRoutes = require('./routes/product')
 const slackRoutes = require('./routes/slack')
 const linkRoutes = require('./routes/link')
 const configRoutes = require('./routes/config')
+const contactRoutes = require('./routes/contact')
 
 // const https = require('https')
 // const fs = require('fs')
@@ -86,6 +87,7 @@ app.use('/product', productRoutes)
 app.use('/slack', slackRoutes)
 app.use('/link', linkRoutes)
 app.use('/config', configRoutes)
+app.use('/contact', contactRoutes)
 
 app.use('/', (req, res) => {
   return res.json({
