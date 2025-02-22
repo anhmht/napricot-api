@@ -1,11 +1,9 @@
 const Contact = require('../models/Contact')
-const { getMissingFields, callMoveAndGetLink } = require('../utils')
+const { getMissingFields } = require('../utils')
 const { sendMail } = require('../utils/email')
 
 const createContact = async (req, res, next) => {
   try {
-    const { name, email, subject, content } = req.body
-
     const missingField = getMissingFields(req.body, [
       'name',
       'email',
@@ -29,51 +27,23 @@ const createContact = async (req, res, next) => {
       success: true
     })
 
-    if (contact.images.length) {
-      try {
-        const { data } = await callMoveAndGetLink({
-          slug: contact._id,
-          images: [...contact.images],
-          movePath: 'Contact',
-          req
-        })
-
-        await Contact.findByIdAndUpdate(
-          contact._id,
-          {
-            $set: {
-              images: data.images.map((img) => ({
-                id: img._id,
-                url: img.url,
-                cloudflareUrl: img.cloudflareUrl
-              }))
-            }
-          },
-          { new: true }
-        ).lean()
-      } catch (error) {
-        console.log(error)
-        return next(error)
-      }
-    }
-
     sendMail({
       from: 'Napricot <support@napricot.com>',
-      emails: [email],
+      emails: [contact.email],
       subject: 'Thank you for contacting us',
       template: 'contact.html',
       params: [
         {
           key: 'name',
-          value: name
+          value: contact.name
         },
         {
           key: 'subject',
-          value: subject
+          value: contact.subject
         },
         {
           key: 'content',
-          value: content
+          value: contact.content
         }
       ]
     })

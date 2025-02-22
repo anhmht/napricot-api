@@ -4,31 +4,16 @@ const contactSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Contact name is required'],
-      unique: true
+      required: [true, 'Contact name is required']
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
-      unique: true
+      required: [true, 'Email is required']
     },
     subject: {
       type: String,
       required: [true, 'Subject is required']
     },
-    images: [
-      {
-        id: {
-          type: String
-        },
-        url: {
-          type: String
-        },
-        cloudflareUrl: {
-          type: String
-        }
-      }
-    ],
     content: {
       type: String,
       required: [true, 'Content is required']
