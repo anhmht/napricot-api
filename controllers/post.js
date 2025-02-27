@@ -111,6 +111,7 @@ const createPost = async (req, res, next) => {
         dataType: dataTypes.POST
       })
     } catch (error) {
+      console.log(error)
       return next(error)
     }
   } catch (error) {
@@ -274,6 +275,7 @@ const updatePost = async (req, res, next) => {
         dataType: dataTypes.POST
       })
     } catch (error) {
+      console.log(error)
       return next(error)
     }
   } catch (error) {
