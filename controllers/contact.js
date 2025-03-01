@@ -177,7 +177,8 @@ const updateContacts = async (req, res, next) => {
         }
       },
       {
-        isDone: true
+        isDone: true,
+        isRead: true
       }
     )
 
