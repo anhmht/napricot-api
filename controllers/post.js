@@ -63,7 +63,9 @@ const createPost = async (req, res, next) => {
         req
       })
 
-      let content = decodeURIComponent(post.content).replaceAll('&amp;', '&')
+      let content = decodeURIComponent(
+        post.content.replace(/%(?![0-9A-F]{2})/gi, '%25') // encode all % not followed by 2 hex digits
+      ).replaceAll('&amp;', '&')
 
       data.images.forEach((element) => {
         if (content.includes(element.url) && element.cloudflareUrl) {
@@ -219,7 +221,9 @@ const updatePost = async (req, res, next) => {
           })
         : { data: { images: [] } }
 
-      let updatedContent = decodeURIComponent(content).replaceAll('&amp;', '&')
+      let updatedContent = decodeURIComponent(
+        content.replace(/%(?![0-9A-F]{2})/gi, '%25') // encode all % not followed by 2 hex digits
+      ).replaceAll('&amp;', '&')
       data.images.forEach((element) => {
         if (updatedContent.includes(element.url)) {
           updatedContent = updatedContent.replace(
