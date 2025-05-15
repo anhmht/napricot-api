@@ -233,7 +233,7 @@ const getPostData = async (post) => {
     category: category.name,
     slug: post.slug,
     title: post.title,
-    image: post.image.cloudflareUrl + '/hero',
+    image: post.image.cloudflareUrl + 'hero',
     status: post.status
   }
 }
