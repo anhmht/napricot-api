@@ -2,13 +2,16 @@
   "name": "napricot-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "yarn global add pm2",
     "migrate": "./node_modules/.bin/migrate up",
     "start": "pm2-runtime start ecosystem.config.js --env",
-    "eslint": "eslint index.js ",
+    "build": "tsc",
+    "prestart": "yarn build",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "eslint": "eslint src/**/*.ts",
     "eslint:fix": "yarn eslint --fix"
   },
   "author": "",
@@ -32,12 +35,28 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "migrate-mongoose": "^4.0.0",
-    "mongoose": "^8.6.1",
+    "mongodb": "4.17.1",
+    "mongoose": "7.6.3",
     "node-fetch": "^3.3.2",
     "node-verification-code": "^1.1.6",
     "nodemailer": "^6.9.15",
     "pm2": "^5.4.2",
     "querystring": "^0.2.1",
     "stripe": "^16.10.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.1",
+    "@types/express-fileupload": "^1.5.1",
+    "@types/jsdom": "^21.1.7",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/lodash": "^4.17.16",
+    "@types/mongodb": "4.0.7",
+    "@types/node-fetch": "2.6.9",
+    "@types/nodemailer": "^6.4.17",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "typescript": "^5.8.3"
   }
 }
