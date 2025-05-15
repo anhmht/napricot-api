@@ -8,10 +8,7 @@ import {
   createSearchObject
 } from '../utils'
 
-// Using type assertions for modules that haven't been migrated yet
-// @ts-ignore
 import { broadcast, notificationType } from './webSocket'
-// @ts-ignore
 import { sendLogMessage, dataTypes } from './slack'
 
 export const createPost = async (
