@@ -1,23 +1,34 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// The controllers will need to be converted to TypeScript later
-const product_1 = require("../controllers/product");
-const printify_1 = require("../controllers/printify");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _product = require("../controllers/product");
+const _printify = require("../controllers/printify");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // create product
-router.post('/', product_1.createProduct);
+router.post('/', _product.createProduct);
 // update product
-router.put('/:id', product_1.updateProduct);
+router.put('/:id', _product.updateProduct);
 // get products
-router.get('/', product_1.getProducts);
+router.get('/', _product.getProducts);
 // get product
-router.get('/:id', product_1.getProduct);
+router.get('/:id', _product.getProduct);
 // delete product
-router.delete('/:id', product_1.deleteProduct);
+router.delete('/:id', _product.deleteProduct);
 // get available printify variants
-router.get('/printify/:provider/:blueprint', printify_1.getAvailableVariants);
-exports.default = router;
+router.get('/printify/:provider/:blueprint', _printify.getAvailableVariants);
+const _default = router;
+
+//# sourceMappingURL=product.js.map

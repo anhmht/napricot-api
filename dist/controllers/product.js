@@ -1,20 +1,46 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get createProduct () {
+        return createProduct;
+    },
+    get deleteProduct () {
+        return deleteProduct;
+    },
+    get getProduct () {
+        return getProduct;
+    },
+    get getProducts () {
+        return getProducts;
+    },
+    get updateProduct () {
+        return updateProduct;
+    }
+});
+const _Product = /*#__PURE__*/ _interop_require_default(require("../schema/Product"));
+const _utils = require("../utils");
+const _logger = /*#__PURE__*/ _interop_require_default(require("../utils/logger"));
+const _errors = require("../utils/errors");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const convertToPathArray = (images)=>{
+    return images.map((img)=>img.path || img.url || '');
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.getProduct = exports.getProducts = exports.updateProduct = exports.createProduct = void 0;
-const Product_1 = __importDefault(require("../schema/Product"));
-const utils_1 = require("../utils");
-const logger_1 = __importDefault(require("../utils/logger"));
-const errors_1 = require("../utils/errors");
-const convertToPathArray = (images) => {
-    return images.map((img) => img.path || img.url || '');
-};
-const createProduct = async (req, res, next) => {
+const createProduct = async (req, res, next)=>{
     try {
         const { image, image: { id }, images, contentImages, slug } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, [
+        const missingField = (0, _utils.getMissingFields)(req.body, [
             'name',
             'categoryId',
             'content',
@@ -23,80 +49,76 @@ const createProduct = async (req, res, next) => {
             'type'
         ]);
         if (missingField) {
-            throw new errors_1.ValidationError(`${missingField} is required`, missingField);
+            throw new _errors.ValidationError(`${missingField} is required`, missingField);
         }
-        const isProductExists = await Product_1.default.findOne({
+        const isProductExists = await _Product.default.findOne({
             slug
         });
         if (isProductExists) {
-            throw new errors_1.ValidationError('Product already exists', 'slug');
+            throw new _errors.ValidationError('Product already exists', 'slug');
         }
-        const product = await Product_1.default.create({
+        const product = await _Product.default.create({
             ...req.body
         });
         res.status(200).json({
             product
         });
         try {
-            const imagePaths = [image, ...images, ...contentImages].map((img) => img.path || img.url);
-            const result = await (0, utils_1.callMoveAndGetLink)({
+            const imagePaths = [
+                image,
+                ...images,
+                ...contentImages
+            ].filter(Boolean).map((img)=>img.path || img.url || '');
+            const result = await (0, _utils.callMoveAndGetLink)({
                 slug: product.slug,
                 images: imagePaths,
                 movePath: 'Product',
                 req
             });
-            if (!result?.data)
-                return;
+            if (!result?.data) return;
             const { data } = result;
             let content = product.content || '';
-            data.images.forEach((element) => {
+            data.images.forEach((element)=>{
                 if (content.includes(element.url)) {
                     content = content.replace(element.url, element.thumbnailUrl || '');
                 }
             });
-            await Product_1.default.findByIdAndUpdate(product._id, {
+            await _Product.default.findByIdAndUpdate(product._id, {
                 $set: {
                     image: {
                         id: data.images[0]._id,
                         url: data.images[0].url,
                         thumbnail: data.images[0].thumbnailUrl
                     },
-                    images: data.images
-                        .filter((img) => img._id !== id &&
-                        !contentImages.map((i) => i.id).includes(img._id || ''))
-                        .map((img) => ({
-                        id: img._id,
-                        url: img.url,
-                        thumbnail: img.thumbnailUrl
-                    })),
-                    contentImages: data.images
-                        .filter((img) => img._id !== id &&
-                        !images.map((i) => i.id).includes(img._id || ''))
-                        .map((img) => ({
-                        id: img._id,
-                        url: img.url,
-                        thumbnail: img.thumbnailUrl
-                    })),
+                    images: data.images.filter((img)=>img._id !== id && !contentImages.map((i)=>i.id).includes(img._id || '')).map((img)=>({
+                            id: img._id,
+                            url: img.url,
+                            thumbnail: img.thumbnailUrl
+                        })),
+                    contentImages: data.images.filter((img)=>img._id !== id && !images.map((i)=>i.id).includes(img._id || '')).map((img)=>({
+                            id: img._id,
+                            url: img.url,
+                            thumbnail: img.thumbnailUrl
+                        })),
                     content
                 }
-            }, { new: true });
-            logger_1.default.info(`Product created successfully: ${product._id}`);
-        }
-        catch (error) {
-            logger_1.default.error('Error processing product images:', error);
+            }, {
+                new: true
+            });
+            _logger.default.info(`Product created successfully: ${product._id}`);
+        } catch (error) {
+            _logger.default.error('Error processing product images:', error);
             return next(error);
         }
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.createProduct = createProduct;
-const updateProduct = async (req, res, next) => {
+const updateProduct = async (req, res, next)=>{
     try {
         const { id } = req.params;
         const { content, image, images, contentImages } = req.body;
-        const product = await Product_1.default.findById(id);
+        const product = await _Product.default.findById(id);
         if (!product) {
             res.status(400).json({
                 error: true,
@@ -104,9 +126,11 @@ const updateProduct = async (req, res, next) => {
             });
             return next(new Error('Product not found'));
         }
-        const updatedProduct = await Product_1.default.findByIdAndUpdate(id, {
+        const updatedProduct = await _Product.default.findByIdAndUpdate(id, {
             $set: req.body
-        }, { new: true }).lean();
+        }, {
+            new: true
+        }).lean();
         res.status(200).json({
             updatedProduct
         });
@@ -114,88 +138,88 @@ const updateProduct = async (req, res, next) => {
         const deleteImages = [];
         if (product.image && image && product.image.id !== image.id) {
             insertImages.push(image);
-            if (product.image)
-                deleteImages.push(product.image);
+            if (product.image) deleteImages.push(product.image);
         }
         if (product.images) {
-            images.forEach((img) => {
-                if (!product.images?.find((productImage) => productImage.id === img.id)) {
+            images.forEach((img)=>{
+                if (!product.images?.find((productImage)=>productImage.id === img.id)) {
                     insertImages.push(img);
                 }
             });
-            product.images.forEach((img) => {
-                if (!images.find((image) => image.id === img.id)) {
+            product.images.forEach((img)=>{
+                if (!images.find((image)=>image.id === img.id)) {
                     deleteImages.push(img);
                 }
             });
         }
         if (product.contentImages) {
-            contentImages.forEach((img) => {
-                if (!product.contentImages?.find((image) => image.id === img.id)) {
+            contentImages.forEach((img)=>{
+                if (!product.contentImages?.find((image)=>image.id === img.id)) {
                     insertImages.push(img);
                 }
             });
-            product.contentImages.forEach((img) => {
-                if (!contentImages.find((image) => image.id === img.id)) {
+            product.contentImages.forEach((img)=>{
+                if (!contentImages.find((image)=>image.id === img.id)) {
                     deleteImages.push(img);
                 }
             });
         }
         try {
             const deleteImagePaths = convertToPathArray(deleteImages);
-            const deleteResult = deleteImages.length
-                ? await (0, utils_1.callDeleteImages)({
-                    images: deleteImagePaths,
-                    folders: [],
-                    req
-                })
-                : { data: { success: true } };
-            if (!deleteResult?.data?.success)
-                return;
+            const deleteResult = deleteImages.length ? await (0, _utils.callDeleteImages)({
+                images: deleteImagePaths,
+                folders: [],
+                req
+            }) : {
+                data: {
+                    success: true
+                }
+            };
+            if (!deleteResult?.data?.success) return;
             const insertImagePaths = convertToPathArray(insertImages);
-            const moveResult = insertImages.length
-                ? await (0, utils_1.callMoveAndGetLink)({
-                    slug: product.slug,
-                    images: insertImagePaths,
-                    movePath: 'Product',
-                    req,
-                    nextIndex: (0, utils_1.getNextNumber)([
-                        ...(product.image ? [product.image.thumbnail || ''] : []),
-                        ...(product.images?.map((img) => img.thumbnail || '') || []),
-                        ...(product.contentImages?.map((img) => img.thumbnail || '') ||
-                            [])
-                    ])
-                })
-                : { data: { images: [] } };
-            if (!moveResult?.data)
-                return;
+            const moveResult = insertImages.length ? await (0, _utils.callMoveAndGetLink)({
+                slug: product.slug,
+                images: insertImagePaths,
+                movePath: 'Product',
+                req,
+                nextIndex: (0, _utils.getNextNumber)([
+                    ...product.image ? [
+                        product.image.thumbnail || ''
+                    ] : [],
+                    ...product.images?.map((img)=>img.thumbnail || '') || [],
+                    ...product.contentImages?.map((img)=>img.thumbnail || '') || []
+                ])
+            }) : {
+                data: {
+                    images: []
+                }
+            };
+            if (!moveResult?.data) return;
             const { data } = moveResult;
             let updatedContent = content || '';
-            data.images.forEach((element) => {
+            data.images.forEach((element)=>{
                 if (updatedContent.includes(element.url)) {
                     updatedContent = updatedContent.replace(element.url, element.thumbnailUrl || '');
                 }
             });
-            const updateImage = data.images.find((img) => img._id === image?.id);
-            await Product_1.default.findByIdAndUpdate(id, {
+            const updateImage = data.images.find((img)=>img._id === image?.id);
+            await _Product.default.findByIdAndUpdate(id, {
                 $set: {
-                    image: updateImage
-                        ? {
-                            id: updateImage._id,
-                            url: updateImage.url,
-                            thumbnail: updateImage.thumbnailUrl
-                        }
-                        : undefined,
-                    images: images.map((img) => {
-                        const updateImg = data.images.find((image) => image._id === img.id);
+                    image: updateImage ? {
+                        id: updateImage._id,
+                        url: updateImage.url,
+                        thumbnail: updateImage.thumbnailUrl
+                    } : undefined,
+                    images: images.map((img)=>{
+                        const updateImg = data.images.find((image)=>image._id === img.id);
                         return {
                             id: updateImg ? updateImg._id : img.id,
                             url: updateImg ? updateImg.url : img.url,
                             thumbnail: updateImg ? updateImg.thumbnailUrl : img.thumbnail
                         };
                     }),
-                    contentImages: contentImages.map((img) => {
-                        const updateImg = data.images.find((image) => image._id === img.id);
+                    contentImages: contentImages.map((img)=>{
+                        const updateImg = data.images.find((image)=>image._id === img.id);
                         return {
                             id: updateImg ? updateImg._id : img.id,
                             url: updateImg ? updateImg.url : img.url,
@@ -204,22 +228,21 @@ const updateProduct = async (req, res, next) => {
                     }),
                     content: updatedContent
                 }
-            }, { new: true });
+            }, {
+                new: true
+            });
             console.log('Product updated successfully');
-        }
-        catch (error) {
+        } catch (error) {
             return next(error);
         }
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.updateProduct = updateProduct;
-const deleteProduct = async (req, res, next) => {
+const deleteProduct = async (req, res, next)=>{
     try {
         const { id } = req.params;
-        const product = await Product_1.default.findById(id);
+        const product = await _Product.default.findById(id);
         if (!product) {
             res.status(400).json({
                 error: true,
@@ -227,11 +250,13 @@ const deleteProduct = async (req, res, next) => {
             });
             return next(new Error('Product not found'));
         }
-        await Product_1.default.findByIdAndUpdate(id, {
+        await _Product.default.findByIdAndUpdate(id, {
             $set: {
                 isDeleted: true
             }
-        }, { new: true });
+        }, {
+            new: true
+        });
         res.status(200).json({
             success: true
         });
@@ -243,21 +268,21 @@ const deleteProduct = async (req, res, next) => {
                         path: product.image.path || product.image.url || ''
                     }
                 ];
-                await (0, utils_1.callMoveImagesToDeletedFolder)({
+                await (0, _utils.callMoveImagesToDeletedFolder)({
                     images: imagePaths,
                     slug: product.slug,
                     req
                 });
             }
             const imagesList = [
-                ...(product.images || []),
-                ...(product.contentImages || [])
-            ].map((img) => ({
-                id: img.id || '',
-                path: img.path || img.url || ''
-            }));
+                ...product.images || [],
+                ...product.contentImages || []
+            ].map((img)=>({
+                    id: img.id || '',
+                    path: img.path || img.url || ''
+                }));
             if (imagesList.length > 0) {
-                await (0, utils_1.callDeleteImages)({
+                await (0, _utils.callDeleteImages)({
                     images: imagesList,
                     folders: [
                         `/Product/${product.slug}`,
@@ -266,36 +291,30 @@ const deleteProduct = async (req, res, next) => {
                     req
                 });
             }
-        }
-        catch (error) {
+        } catch (error) {
             return next(error);
         }
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.deleteProduct = deleteProduct;
-const getProducts = async (req, res, next) => {
+const getProducts = async (req, res, next)=>{
     try {
         const { page = 1, size = 10 } = req.query;
-        const products = await Product_1.default.find()
-            .skip((Number(page) - 1) * Number(size))
-            .limit(Number(size))
-            .sort({ createdAt: -1 });
+        const products = await _Product.default.find().skip((Number(page) - 1) * Number(size)).limit(Number(size)).sort({
+            createdAt: -1
+        });
         res.status(200).json({
             products
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.getProducts = getProducts;
-const getProduct = async (req, res, next) => {
+const getProduct = async (req, res, next)=>{
     try {
         const { id } = req.params;
-        const product = await Product_1.default.findById(id);
+        const product = await _Product.default.findById(id);
         if (!product) {
             res.status(400).json({
                 error: true,
@@ -306,9 +325,9 @@ const getProduct = async (req, res, next) => {
         res.status(200).json({
             product
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.getProduct = getProduct;
+
+//# sourceMappingURL=product.js.map

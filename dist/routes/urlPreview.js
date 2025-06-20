@@ -1,12 +1,23 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// Import controller
-const urlPreview_1 = require("../controllers/urlPreview");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _urlPreview = require("../controllers/urlPreview");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // Get URL preview
-router.get('/get-preview-link', urlPreview_1.getUrlPreview);
-exports.default = router;
+router.get('/get-preview-link', _urlPreview.getUrlPreview);
+const _default = router;
+
+//# sourceMappingURL=urlPreview.js.map

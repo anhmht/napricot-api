@@ -1,26 +1,37 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// The controllers and middlewares will need to be converted to TypeScript later
-const post_1 = require("../controllers/post");
-const authenticate_1 = require("../middlewares/authenticate");
-const authorize_1 = require("../middlewares/authorize");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _post = require("../controllers/post");
+const _authenticate = require("../middlewares/authenticate");
+const _authorize = require("../middlewares/authorize");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // createPost
-router.post('/', authenticate_1.authenticateJWT, authorize_1.authorize, post_1.createPost);
+router.post('/', _authenticate.authenticateJWT, _authorize.authorize, _post.createPost);
 // updatePost
-router.put('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, post_1.updatePost);
+router.put('/:id', _authenticate.authenticateJWT, _authorize.authorize, _post.updatePost);
 // getPosts
-router.get('/', post_1.getPosts);
+router.get('/', _post.getPosts);
 // getPost
-router.get('/:id', post_1.getPost);
+router.get('/:id', _post.getPost);
 // getPostBySlug
-router.get('/slug/:slug', post_1.getPostBySlug);
+router.get('/slug/:slug', _post.getPostBySlug);
 // deletePost
-router.delete('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, post_1.deletePost);
+router.delete('/:id', _authenticate.authenticateJWT, _authorize.authorize, _post.deletePost);
 // deletePosts
-router.delete('/', authenticate_1.authenticateJWT, authorize_1.authorize, post_1.deletePosts);
-exports.default = router;
+router.delete('/', _authenticate.authenticateJWT, _authorize.authorize, _post.deletePosts);
+const _default = router;
+
+//# sourceMappingURL=post.js.map

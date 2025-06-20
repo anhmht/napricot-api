@@ -1,19 +1,51 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.sendResetPasswordLink = exports.getMe = exports.verifyUser = exports.resendVerificationCode = exports.getUsers = exports.createUser = void 0;
-const User_1 = __importDefault(require("../schema/User"));
-const utils_1 = require("../utils");
-const password_1 = require("../utils/password");
-const email_1 = require("../utils/email");
-const node_verification_code_1 = require("node-verification-code");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const createUser = async (req, res, next) => {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get createUser () {
+        return createUser;
+    },
+    get getMe () {
+        return getMe;
+    },
+    get getUsers () {
+        return getUsers;
+    },
+    get resendVerificationCode () {
+        return resendVerificationCode;
+    },
+    get resetPassword () {
+        return resetPassword;
+    },
+    get sendResetPasswordLink () {
+        return sendResetPasswordLink;
+    },
+    get verifyUser () {
+        return verifyUser;
+    }
+});
+const _User = /*#__PURE__*/ _interop_require_default(require("../schema/User"));
+const _utils = require("../utils");
+const _password = require("../utils/password");
+const _email = require("../utils/email");
+const _nodeverificationcode = require("node-verification-code");
+const _jsonwebtoken = /*#__PURE__*/ _interop_require_default(require("jsonwebtoken"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const createUser = async (req, res, next)=>{
     try {
         const { name, email, password } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, [
+        const missingField = (0, _utils.getMissingFields)(req.body, [
             'name',
             'email',
             'password'
@@ -27,7 +59,9 @@ const createUser = async (req, res, next) => {
             return next(new Error('missing required field'));
         }
         // check if user already exists
-        const isUserExists = await User_1.default.findOne({ email });
+        const isUserExists = await _User.default.findOne({
+            email
+        });
         if (isUserExists) {
             res.status(404).json({
                 error: true,
@@ -35,24 +69,25 @@ const createUser = async (req, res, next) => {
             });
             return next(new Error('User already exists'));
         }
-        const verificationCode = (0, node_verification_code_1.getDigitalCode)(6).toString();
-        const user = await User_1.default.create({
+        const verificationCode = (0, _nodeverificationcode.getDigitalCode)(6).toString();
+        const user = await _User.default.create({
             name,
             email,
-            password: await (0, password_1.hashPassword)(password),
-            verifyCode: await (0, password_1.hashPassword)(verificationCode)
+            password: await (0, _password.hashPassword)(password),
+            verifyCode: await (0, _password.hashPassword)(verificationCode)
         });
         let token;
         try {
             //Creating jwt token
-            token = jsonwebtoken_1.default.sign({
+            token = _jsonwebtoken.default.sign({
                 userId: user._id,
                 email: user.email,
                 roles: user.roles,
                 password: user.password
-            }, process.env.JWT_SECRET, { expiresIn: '10 years' });
-        }
-        catch (err) {
+            }, process.env.JWT_SECRET, {
+                expiresIn: '10 years'
+            });
+        } catch (err) {
             const error = new Error('Error! Something went wrong.');
             res.status(500).json({
                 message: 'Error! Something went wrong.',
@@ -60,9 +95,11 @@ const createUser = async (req, res, next) => {
             });
             return next(error);
         }
-        (0, email_1.sendMail)({
+        (0, _email.sendMail)({
             from: 'Napricot <support@napricot.com>',
-            emails: [email],
+            emails: [
+                email
+            ],
             subject: 'Verify your Napricot account',
             template: 'email-verification.html',
             params: [
@@ -87,16 +124,16 @@ const createUser = async (req, res, next) => {
             roles: user.roles,
             token
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.createUser = createUser;
-const resendVerificationCode = async (req, res, next) => {
+const resendVerificationCode = async (req, res, next)=>{
     try {
         const { email } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, ['email']);
+        const missingField = (0, _utils.getMissingFields)(req.body, [
+            'email'
+        ]);
         if (missingField) {
             res.status(400).json({
                 error: true,
@@ -106,7 +143,9 @@ const resendVerificationCode = async (req, res, next) => {
             return next(new Error('missing required field'));
         }
         // check if user already exists
-        const user = await User_1.default.findOne({ email });
+        const user = await _User.default.findOne({
+            email
+        });
         if (!user) {
             res.status(404).json({
                 error: true,
@@ -114,13 +153,17 @@ const resendVerificationCode = async (req, res, next) => {
             });
             return next(new Error('User does not exists'));
         }
-        const verificationCode = (0, node_verification_code_1.getDigitalCode)(6).toString();
-        await User_1.default.findByIdAndUpdate(user._id, {
-            verifyCode: await (0, password_1.hashPassword)(verificationCode)
-        }, { new: true });
-        (0, email_1.sendMail)({
+        const verificationCode = (0, _nodeverificationcode.getDigitalCode)(6).toString();
+        await _User.default.findByIdAndUpdate(user._id, {
+            verifyCode: await (0, _password.hashPassword)(verificationCode)
+        }, {
+            new: true
+        });
+        (0, _email.sendMail)({
             from: 'Napricot <support@napricot.com>',
-            emails: [email],
+            emails: [
+                email
+            ],
             subject: 'Verify your Napricot account',
             template: 'email-verification.html',
             params: [
@@ -137,16 +180,17 @@ const resendVerificationCode = async (req, res, next) => {
         res.status(200).json({
             message: 'Verification code sent successfully'
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.resendVerificationCode = resendVerificationCode;
-const verifyUser = async (req, res, next) => {
+const verifyUser = async (req, res, next)=>{
     try {
         const { email, code } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, ['email', 'code']);
+        const missingField = (0, _utils.getMissingFields)(req.body, [
+            'email',
+            'code'
+        ]);
         if (missingField) {
             res.status(400).json({
                 error: true,
@@ -155,7 +199,9 @@ const verifyUser = async (req, res, next) => {
             });
             return next(new Error('missing required field'));
         }
-        const user = await User_1.default.findOne({ email });
+        const user = await _User.default.findOne({
+            email
+        });
         if (!user) {
             res.status(404).json({
                 error: true,
@@ -163,7 +209,7 @@ const verifyUser = async (req, res, next) => {
             });
             return next(new Error('User does not exists'));
         }
-        const isCodeMatch = await (0, password_1.comparePassword)(code, user.verifyCode || '');
+        const isCodeMatch = await (0, _password.comparePassword)(code, user.verifyCode || '');
         if (!isCodeMatch) {
             res.status(400).json({
                 error: true,
@@ -171,48 +217,46 @@ const verifyUser = async (req, res, next) => {
             });
             return next(new Error('Invalid verification code'));
         }
-        await User_1.default.findByIdAndUpdate(user._id, {
+        await _User.default.findByIdAndUpdate(user._id, {
             isVerified: true
-        }, { new: true });
+        }, {
+            new: true
+        });
         res.status(200).json({
             message: 'User verified successfully'
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.verifyUser = verifyUser;
-const getMe = async (req, res, next) => {
+const getMe = async (req, res, next)=>{
     try {
         res.status(200).json({
             ...res.locals.user
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.getMe = getMe;
-const getUsers = async (req, res, next) => {
+const getUsers = async (req, res, next)=>{
     try {
         const a = new Date();
-        const users = await User_1.default.find();
+        const users = await _User.default.find();
         const b = new Date();
         console.log('Time taken to get users:', b.getTime() - a.getTime());
         res.status(200).json({
             users
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.getUsers = getUsers;
-const sendResetPasswordLink = async (req, res, next) => {
+const sendResetPasswordLink = async (req, res, next)=>{
     try {
         const { email } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, ['email']);
+        const missingField = (0, _utils.getMissingFields)(req.body, [
+            'email'
+        ]);
         if (missingField) {
             res.status(400).json({
                 error: true,
@@ -221,7 +265,9 @@ const sendResetPasswordLink = async (req, res, next) => {
             });
             return next(new Error('missing required field'));
         }
-        const user = await User_1.default.findOne({ email });
+        const user = await _User.default.findOne({
+            email
+        });
         if (!user) {
             res.status(404).json({
                 error: true,
@@ -232,14 +278,15 @@ const sendResetPasswordLink = async (req, res, next) => {
         let token;
         try {
             //Creating jwt token
-            token = jsonwebtoken_1.default.sign({
+            token = _jsonwebtoken.default.sign({
                 userId: user._id,
                 email: user.email,
                 roles: user.roles,
                 password: user.password
-            }, process.env.JWT_SECRET, { expiresIn: '10 years' });
-        }
-        catch (err) {
+            }, process.env.JWT_SECRET, {
+                expiresIn: '10 years'
+            });
+        } catch (err) {
             const error = new Error('Error! Something went wrong.');
             res.status(500).json({
                 message: 'Error! Something went wrong.',
@@ -247,9 +294,11 @@ const sendResetPasswordLink = async (req, res, next) => {
             });
             return next(error);
         }
-        (0, email_1.sendMail)({
+        (0, _email.sendMail)({
             from: 'Napricot <support@napricot.com>',
-            emails: [email],
+            emails: [
+                email
+            ],
             subject: 'Reset your Napricot account password',
             template: 'reset-password.html',
             params: [
@@ -266,16 +315,16 @@ const sendResetPasswordLink = async (req, res, next) => {
         res.status(200).json({
             message: 'Reset code sent successfully'
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.sendResetPasswordLink = sendResetPasswordLink;
-const resetPassword = async (req, res, next) => {
+const resetPassword = async (req, res, next)=>{
     try {
         const { password } = req.body;
-        const missingField = (0, utils_1.getMissingFields)(req.body, ['password']);
+        const missingField = (0, _utils.getMissingFields)(req.body, [
+            'password'
+        ]);
         if (missingField) {
             res.status(400).json({
                 error: true,
@@ -292,7 +341,7 @@ const resetPassword = async (req, res, next) => {
             });
             return next(new Error('Token is required'));
         }
-        jsonwebtoken_1.default.verify(token.split(' ')[1], process.env.JWT_SECRET, async (err, decoded) => {
+        _jsonwebtoken.default.verify(token.split(' ')[1], process.env.JWT_SECRET, async (err, decoded)=>{
             if (err) {
                 res.status(403).json({
                     error: true,
@@ -300,7 +349,7 @@ const resetPassword = async (req, res, next) => {
                 });
                 return next(new Error('Forbidden'));
             }
-            const user = await User_1.default.findById(decoded.userId);
+            const user = await _User.default.findById(decoded.userId);
             if (!user) {
                 res.status(404).json({
                     error: true,
@@ -315,16 +364,18 @@ const resetPassword = async (req, res, next) => {
                 });
                 return next(new Error('Invalid token'));
             }
-            await User_1.default.findByIdAndUpdate(user._id, {
-                password: await (0, password_1.hashPassword)(password)
-            }, { new: true });
+            await _User.default.findByIdAndUpdate(user._id, {
+                password: await (0, _password.hashPassword)(password)
+            }, {
+                new: true
+            });
             res.status(200).json({
                 message: 'Password reset successfully'
             });
         });
-    }
-    catch (error) {
+    } catch (error) {
         return next(error);
     }
 };
-exports.resetPassword = resetPassword;
+
+//# sourceMappingURL=user.js.map

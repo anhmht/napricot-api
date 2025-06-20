@@ -1,17 +1,34 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.broadcast = exports.notificationType = void 0;
-const axios_1 = __importDefault(require("axios"));
-exports.notificationType = {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get broadcast () {
+        return broadcast;
+    },
+    get notificationType () {
+        return notificationType;
+    }
+});
+const _axios = /*#__PURE__*/ _interop_require_default(require("axios"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const notificationType = {
     POST: 'postNotification'
 };
-const broadcast = async (data) => {
+const broadcast = async (data)=>{
     try {
         // Deploy master branch
-        await axios_1.default.post(`${process.env.OPERATION_URL}/websocket/send`, {
+        await _axios.default.post(`${process.env.OPERATION_URL}/websocket/send`, {
             message: {
                 ...data
             }
@@ -20,9 +37,9 @@ const broadcast = async (data) => {
                 'Content-Type': 'application/json'
             }
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
     }
 };
-exports.broadcast = broadcast;
+
+//# sourceMappingURL=webSocket.js.map

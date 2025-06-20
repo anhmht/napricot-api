@@ -1,25 +1,35 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// Import middlewares
-const authenticate_1 = require("../middlewares/authenticate");
-const authorize_1 = require("../middlewares/authorize");
-// Import controllers using ES modules
-const contact_1 = require("../controllers/contact");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _authenticate = require("../middlewares/authenticate");
+const _authorize = require("../middlewares/authorize");
+const _contact = require("../controllers/contact");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // create a contact
-router.post('/', contact_1.createContact);
+router.post('/', _contact.createContact);
 // get all contacts
-router.get('/', authenticate_1.authenticateJWT, authorize_1.authorize, contact_1.getContacts);
+router.get('/', _authenticate.authenticateJWT, _authorize.authorize, _contact.getContacts);
 // get a contact
-router.get('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, contact_1.getContact);
+router.get('/:id', _authenticate.authenticateJWT, _authorize.authorize, _contact.getContact);
 // update a contact
-router.put('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, contact_1.updateContact);
+router.put('/:id', _authenticate.authenticateJWT, _authorize.authorize, _contact.updateContact);
 // delete multiple contacts
-router.delete('/', authenticate_1.authenticateJWT, authorize_1.authorize, contact_1.deleteContacts);
+router.delete('/', _authenticate.authenticateJWT, _authorize.authorize, _contact.deleteContacts);
 // update multiple contacts
-router.put('/', authenticate_1.authenticateJWT, authorize_1.authorize, contact_1.updateContacts);
-exports.default = router;
+router.put('/', _authenticate.authenticateJWT, _authorize.authorize, _contact.updateContacts);
+const _default = router;
+
+//# sourceMappingURL=contact.js.map

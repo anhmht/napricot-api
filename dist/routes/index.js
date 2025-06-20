@@ -1,34 +1,75 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.urlPreviewRoutes = exports.emailRoutes = exports.checkoutRoutes = exports.slackRoutes = exports.configRoutes = exports.contactRoutes = exports.linkRoutes = exports.stripeRoutes = exports.productRoutes = exports.postRoutes = exports.categoryRoutes = exports.imageRoutes = exports.userRoutes = exports.authRoutes = void 0;
-const auth_1 = __importDefault(require("./auth"));
-exports.authRoutes = auth_1.default;
-const users_1 = __importDefault(require("./users"));
-exports.userRoutes = users_1.default;
-const image_1 = __importDefault(require("./image"));
-exports.imageRoutes = image_1.default;
-const category_1 = __importDefault(require("./category"));
-exports.categoryRoutes = category_1.default;
-const post_1 = __importDefault(require("./post"));
-exports.postRoutes = post_1.default;
-const product_1 = __importDefault(require("./product"));
-exports.productRoutes = product_1.default;
-const stripe_1 = __importDefault(require("./stripe"));
-exports.stripeRoutes = stripe_1.default;
-const link_1 = __importDefault(require("./link"));
-exports.linkRoutes = link_1.default;
-const contact_1 = __importDefault(require("./contact"));
-exports.contactRoutes = contact_1.default;
-const config_1 = __importDefault(require("./config"));
-exports.configRoutes = config_1.default;
-const slack_1 = __importDefault(require("./slack"));
-exports.slackRoutes = slack_1.default;
-const checkout_1 = __importDefault(require("./checkout"));
-exports.checkoutRoutes = checkout_1.default;
-const email_1 = __importDefault(require("./email"));
-exports.emailRoutes = email_1.default;
-const urlPreview_1 = __importDefault(require("./urlPreview"));
-exports.urlPreviewRoutes = urlPreview_1.default;
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get authRoutes () {
+        return _auth.default;
+    },
+    get categoryRoutes () {
+        return _category.default;
+    },
+    get checkoutRoutes () {
+        return _checkout.default;
+    },
+    get configRoutes () {
+        return _config.default;
+    },
+    get contactRoutes () {
+        return _contact.default;
+    },
+    get emailRoutes () {
+        return _email.default;
+    },
+    get imageRoutes () {
+        return _image.default;
+    },
+    get linkRoutes () {
+        return _link.default;
+    },
+    get postRoutes () {
+        return _post.default;
+    },
+    get productRoutes () {
+        return _product.default;
+    },
+    get slackRoutes () {
+        return _slack.default;
+    },
+    get stripeRoutes () {
+        return _stripe.default;
+    },
+    get urlPreviewRoutes () {
+        return _urlPreview.default;
+    },
+    get userRoutes () {
+        return _users.default;
+    }
+});
+const _auth = /*#__PURE__*/ _interop_require_default(require("./auth"));
+const _users = /*#__PURE__*/ _interop_require_default(require("./users"));
+const _image = /*#__PURE__*/ _interop_require_default(require("./image"));
+const _category = /*#__PURE__*/ _interop_require_default(require("./category"));
+const _post = /*#__PURE__*/ _interop_require_default(require("./post"));
+const _product = /*#__PURE__*/ _interop_require_default(require("./product"));
+const _stripe = /*#__PURE__*/ _interop_require_default(require("./stripe"));
+const _link = /*#__PURE__*/ _interop_require_default(require("./link"));
+const _contact = /*#__PURE__*/ _interop_require_default(require("./contact"));
+const _config = /*#__PURE__*/ _interop_require_default(require("./config"));
+const _slack = /*#__PURE__*/ _interop_require_default(require("./slack"));
+const _checkout = /*#__PURE__*/ _interop_require_default(require("./checkout"));
+const _email = /*#__PURE__*/ _interop_require_default(require("./email"));
+const _urlPreview = /*#__PURE__*/ _interop_require_default(require("./urlPreview"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+
+//# sourceMappingURL=index.js.map

@@ -158,7 +158,7 @@ export const sendLogMessage = async ({
     {
       attachments: [
         {
-          color: messageType[type],
+          color: messageType[type as keyof typeof messageType],
           fallback: message,
           blocks: [
             {

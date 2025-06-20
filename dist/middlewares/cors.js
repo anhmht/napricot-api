@@ -1,28 +1,34 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.configureCors = configureCors;
 /**
  * CORS Configuration
  * Sets up the CORS middleware for the application
- */
-const cors_1 = __importDefault(require("cors"));
-const env_1 = require("../config/env");
-/**
- * Configures and returns the CORS middleware
- */
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "configureCors", {
+    enumerable: true,
+    get: function() {
+        return configureCors;
+    }
+});
+const _cors = /*#__PURE__*/ _interop_require_default(require("cors"));
+const _env = require("../config/env");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
 function configureCors() {
     const corsOptions = {
-        origin: (origin, callback) => {
-            if (env_1.config.whitelist.indexOf(origin ?? '') !== -1 || !origin) {
+        origin: (origin, callback)=>{
+            if (_env.config.whitelist.indexOf(origin ?? '') !== -1 || !origin) {
                 callback(null, true);
-            }
-            else {
+            } else {
                 callback(new Error('Not allowed by CORS'));
             }
         }
     };
-    return (0, cors_1.default)(corsOptions);
+    return (0, _cors.default)(corsOptions);
 }
+
+//# sourceMappingURL=cors.js.map

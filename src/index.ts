@@ -1,10 +1,9 @@
-import dotenv from 'dotenv'
-dotenv.config()
+// Load environment variables FIRST
+import './env-setup'
 
+// Now import other modules
 import http from 'http'
 import https from 'https'
-
-// Import the configured Express application
 import app from './app'
 import connectDB from './config/db'
 import connectPM2AndReload from './pm2/script'

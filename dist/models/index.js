@@ -1,25 +1,28 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./User"), exports);
-__exportStar(require("./Category"), exports);
-__exportStar(require("./Product"), exports);
-__exportStar(require("./Post"), exports);
-__exportStar(require("./Link"), exports);
-__exportStar(require("./Thread"), exports);
-__exportStar(require("./Contact"), exports);
-__exportStar(require("./Image"), exports);
-__exportStar(require("./Cached"), exports);
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+_export_star(require("./User"), exports);
+_export_star(require("./Category"), exports);
+_export_star(require("./Product"), exports);
+_export_star(require("./Post"), exports);
+_export_star(require("./Link"), exports);
+_export_star(require("./Thread"), exports);
+_export_star(require("./Contact"), exports);
+_export_star(require("./Image"), exports);
+_export_star(require("./Cached"), exports);
+function _export_star(from, to) {
+    Object.keys(from).forEach(function(k) {
+        if (k !== "default" && !Object.prototype.hasOwnProperty.call(to, k)) {
+            Object.defineProperty(to, k, {
+                enumerable: true,
+                get: function() {
+                    return from[k];
+                }
+            });
+        }
+    });
+    return from;
+}
+
+//# sourceMappingURL=index.js.map

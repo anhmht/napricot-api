@@ -1,25 +1,35 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// The controllers and middlewares will need to be converted to TypeScript later
-const category_1 = require("../controllers/category");
-// Import middlewares using ES modules syntax
-const authenticate_1 = require("../middlewares/authenticate");
-const authorize_1 = require("../middlewares/authorize");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _category = require("../controllers/category");
+const _authenticate = require("../middlewares/authenticate");
+const _authorize = require("../middlewares/authorize");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // create a category
-router.post('/', authenticate_1.authenticateJWT, authorize_1.authorize, category_1.createCategory);
+router.post('/', _authenticate.authenticateJWT, _authorize.authorize, _category.createCategory);
 // get all categories
-router.get('/', category_1.getCategories);
+router.get('/', _category.getCategories);
 // get a category
-router.get('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, category_1.getCategory);
+router.get('/:id', _authenticate.authenticateJWT, _authorize.authorize, _category.getCategory);
 // update a category
-router.put('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, category_1.updateCategory);
+router.put('/:id', _authenticate.authenticateJWT, _authorize.authorize, _category.updateCategory);
 // delete a category
-router.delete('/:id', authenticate_1.authenticateJWT, authorize_1.authorize, category_1.deleteCategory);
+router.delete('/:id', _authenticate.authenticateJWT, _authorize.authorize, _category.deleteCategory);
 // delete multiple categories
-router.delete('/', authenticate_1.authenticateJWT, authorize_1.authorize, category_1.deleteCategories);
-exports.default = router;
+router.delete('/', _authenticate.authenticateJWT, _authorize.authorize, _category.deleteCategories);
+const _default = router;
+
+//# sourceMappingURL=category.js.map

@@ -62,12 +62,20 @@ export const errorHandler = (
 
   logger.error(`${statusCode} error:`, err)
 
-  res.status(statusCode).json({
+  const response: any = {
     error: true,
-    message: err.message || 'Internal server error',
-    ...(field && { field }),
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  })
+    message: err.message || 'Internal server error'
+  }
+
+  if (field) {
+    response.field = field
+  }
+
+  if (process.env.NODE_ENV === 'development' && err.stack) {
+    response.stack = err.stack
+  }
+
+  res.status(statusCode).json(response)
 }
 
 export default {

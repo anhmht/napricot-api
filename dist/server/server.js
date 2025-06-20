@@ -1,41 +1,45 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createServer = createServer;
-exports.startServer = startServer;
 /**
  * Server Factory
  * Creates the appropriate server (HTTP or HTTPS) based on environment
- */
-const http_1 = __importDefault(require("http"));
-const https_1 = __importDefault(require("https"));
-const env_1 = require("../config/env");
-/**
- * Creates either an HTTP or HTTPS server based on environment and available credentials
- * @param app Express application
- * @param sslCredentials SSL credentials (if available)
- * @returns HTTP or HTTPS server
- */
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get createServer () {
+        return createServer;
+    },
+    get startServer () {
+        return startServer;
+    }
+});
+const _http = /*#__PURE__*/ _interop_require_default(require("http"));
+const _https = /*#__PURE__*/ _interop_require_default(require("https"));
+const _env = require("../config/env");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
 function createServer(app, sslCredentials) {
     // Use HTTPS server in development with valid credentials
-    if (!env_1.config.isProduction && sslCredentials) {
-        const server = https_1.default.createServer(sslCredentials, app);
+    if (!_env.config.isProduction && sslCredentials) {
+        const server = _https.default.createServer(sslCredentials, app);
         return server;
     }
     // Otherwise use HTTP server (for production or if SSL certs are missing)
-    return http_1.default.createServer(app);
+    return _http.default.createServer(app);
 }
-/**
- * Starts the server on the configured port
- * @param server HTTP or HTTPS server
- * @returns The server instance
- */
 function startServer(server) {
-    server.listen(env_1.config.port, () => {
-        const protocol = server instanceof https_1.default.Server ? 'HTTPS' : 'HTTP';
-        console.log(`Server started listening on ${env_1.config.port} in ${env_1.config.nodeEnv} mode (${protocol})`);
+    server.listen(_env.config.port, ()=>{
+        const protocol = server instanceof _https.default.Server ? 'HTTPS' : 'HTTP';
+        console.log(`Server started listening on ${_env.config.port} in ${_env.config.nodeEnv} mode (${protocol})`);
         // Signal to PM2 that server is ready
         if (process.send) {
             process.send('ready');
@@ -43,3 +47,5 @@ function startServer(server) {
     });
     return server;
 }
+
+//# sourceMappingURL=server.js.map

@@ -1,161 +1,192 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
+Object.defineProperty(exports, "__esModule", {
+    value: true
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get deleteDropboxImages () {
+        return deleteDropboxImages;
+    },
+    get handleDropboxError () {
+        return handleDropboxError;
+    },
+    get moveAndGetLink () {
+        return moveAndGetLink;
+    },
+    get moveImagesToDeletedFolder () {
+        return moveImagesToDeletedFolder;
+    },
+    get refreshToken () {
+        return refreshToken;
+    },
+    get uploadImage () {
+        return uploadImage;
+    }
+});
+const _axios = /*#__PURE__*/ _interop_require_default(require("axios"));
+const _querystring = /*#__PURE__*/ _interop_require_wildcard(require("querystring"));
+const _dropbox = require("dropbox");
+const _utils = require("../utils");
+const _Image = /*#__PURE__*/ _interop_require_default(require("../schema/Image"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
         };
-        return ownKeys(o);
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
     };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.moveImagesToDeletedFolder = exports.deleteDropboxImages = exports.moveAndGetLink = exports.uploadImage = exports.handleDropboxError = exports.refreshToken = void 0;
-const axios_1 = __importDefault(require("axios"));
-const querystring = __importStar(require("querystring"));
-const dropbox_1 = require("dropbox");
-const utils_1 = require("../utils");
-const Image_1 = __importDefault(require("../schema/Image"));
-const dbx = new dropbox_1.Dropbox();
-const uploadImageToDropbox = async (data) => {
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+const dbx = new _dropbox.Dropbox();
+const uploadImageToDropbox = async (data)=>{
     try {
         const uploadedFile = await dbx.filesUpload({
             path: `/temp/${data.name}`,
             contents: data.image,
-            mode: { '.tag': 'add' }
+            mode: {
+                '.tag': 'add'
+            }
         });
         return uploadedFile;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const deleteImage = async (data) => {
+const deleteImage = async (data)=>{
     try {
         const deletedFile = await dbx.filesDeleteBatch({
             entries: data
         });
         return deletedFile.result;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const checkDeleteBatch = async (data) => {
+const checkDeleteBatch = async (data)=>{
     try {
         const job = await dbx.filesDeleteBatchCheck({
             async_job_id: data.async_job_id
         });
         return job;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const moveImage = async (data) => {
+const moveImage = async (data)=>{
     try {
         const movedFile = await dbx.filesMoveBatchV2({
             entries: data.entries,
             autorename: true
         });
         return movedFile.result;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const checkMoveBatch = async (data) => {
+const checkMoveBatch = async (data)=>{
     try {
         const job = await dbx.filesMoveBatchCheckV2({
             async_job_id: data.async_job_id
         });
         return job;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const getLink = async (data) => {
+const getLink = async (data)=>{
     try {
         const file = await dbx.sharingCreateSharedLinkWithSettings({
             path: data.path
         });
         return file;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         await handleDropboxError(error, dbx);
         throw error;
     }
 };
-const uploadImageToCloudflare = async (data) => {
+const uploadImageToCloudflare = async (data)=>{
     const formData = new FormData();
     formData.append('url', data.url);
     try {
-        const uploadedFile = await axios_1.default.post(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`, formData, {
+        const uploadedFile = await _axios.default.post(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`, formData, {
             headers: {
                 Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
                 'Content-Type': 'multipart/form-data'
             }
         });
         return `${process.env.FRONTEND_IMAGE_URL}/cdn-cgi/imagedelivery/veUt9FrhEFdGkfvZziYqkw/${uploadedFile.data.result.id}/`;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         return undefined;
     }
 };
-const deleteImageFromCloudflare = async (data) => {
+const deleteImageFromCloudflare = async (data)=>{
     const split = data.cloudflareUrl.split('/');
     const id = split[split.length - 2];
     try {
-        await axios_1.default.delete(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1/${id}`, {
+        await _axios.default.delete(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1/${id}`, {
             headers: {
                 Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
             }
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
     }
 };
-const uploadImage = async (req, res, next) => {
+const uploadImage = async (req, res, next)=>{
     if (!req.files?.files) {
         res.status(400);
         return next(new Error('No image uploaded'));
@@ -177,8 +208,10 @@ const uploadImage = async (req, res, next) => {
             type: files.mimetype.split('/')[1],
             name: files.name
         });
-        const link = await getLink({ path: uploaded.result.path_display });
-        const image = await Image_1.default.create({
+        const link = await getLink({
+            path: uploaded.result.path_display
+        });
+        const image = await _Image.default.create({
             url: link.result.url.replace('dl=0', 'raw=1'),
             path: uploaded.result.path_display
         });
@@ -188,8 +221,7 @@ const uploadImage = async (req, res, next) => {
             url: image.url,
             path: image.path
         });
-    }
-    catch (error) {
+    } catch (error) {
         if (error.status === 401) {
             return await uploadImage(req, res, next);
         }
@@ -199,8 +231,7 @@ const uploadImage = async (req, res, next) => {
         });
     }
 };
-exports.uploadImage = uploadImage;
-const moveAndGetLink = async (req, res) => {
+const moveAndGetLink = async (req, res)=>{
     const { slug, images, movePath } = req.body;
     if (!dbx.auth.getAccessToken()) {
         ;
@@ -212,23 +243,24 @@ const moveAndGetLink = async (req, res) => {
             entries
         });
         let retry = 20;
-        while (retry) {
-            const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id });
+        while(retry){
+            const job = await checkMoveBatch({
+                async_job_id: filesMove.async_job_id
+            });
             if (job.result['.tag'] === 'complete') {
                 retry = 0;
-            }
-            else {
-                await (0, utils_1.sleep)(1000);
+            } else {
+                await (0, _utils.sleep)(1000);
                 retry -= 1;
             }
         }
         const result = [];
-        for (const [index, value] of entries.entries()) {
+        for (const [index, value] of entries.entries()){
             const a = new Date();
             const cloudflareLink = await uploadImageToCloudflare({
                 url: images[index].url
             });
-            const image = await Image_1.default.findByIdAndUpdate(images[index].id, {
+            const image = await _Image.default.findByIdAndUpdate(images[index].id, {
                 path: value.to_path,
                 url: images[index].url,
                 cloudflareUrl: cloudflareLink
@@ -242,8 +274,7 @@ const moveAndGetLink = async (req, res) => {
         res.status(200).json({
             images: result
         });
-    }
-    catch (error) {
+    } catch (error) {
         if (error.status === 401) {
             return await moveAndGetLink(req, res);
         }
@@ -253,8 +284,7 @@ const moveAndGetLink = async (req, res) => {
         });
     }
 };
-exports.moveAndGetLink = moveAndGetLink;
-const deleteDropboxImages = async (req, res) => {
+const deleteDropboxImages = async (req, res)=>{
     const { images = [], folders = [] } = req.body;
     if (!dbx.auth.getAccessToken()) {
         ;
@@ -263,45 +293,46 @@ const deleteDropboxImages = async (req, res) => {
     const entries = [];
     const imagesToDelete = [];
     if (folders.length === 0) {
-        for (const img of images) {
-            const image = await Image_1.default.findById(img.id).lean();
+        for (const img of images){
+            const image = await _Image.default.findById(img.id).lean();
             if (image) {
                 imagesToDelete.push(image);
-                entries.push({ path: image.path });
+                entries.push({
+                    path: image.path
+                });
             }
         }
-    }
-    else {
-        folders.forEach((element) => {
-            entries.push({ path: element });
+    } else {
+        folders.forEach((element)=>{
+            entries.push({
+                path: element
+            });
         });
     }
     try {
         const filesDelete = await deleteImage(entries);
         let retry = 20;
-        while (retry) {
+        while(retry){
             const job = await checkDeleteBatch({
                 async_job_id: filesDelete.async_job_id
             });
             if (job.result['.tag'] === 'complete') {
                 retry = 0;
-            }
-            else {
-                await (0, utils_1.sleep)(1000);
+            } else {
+                await (0, _utils.sleep)(1000);
                 retry -= 1;
             }
         }
-        for (const img of imagesToDelete) {
+        for (const img of imagesToDelete){
             if (img.cloudflareUrl) {
                 await deleteImageFromCloudflare(img);
             }
-            await Image_1.default.findByIdAndDelete(img._id);
+            await _Image.default.findByIdAndDelete(img._id);
         }
         res.status(200).json({
             success: true
         });
-    }
-    catch (error) {
+    } catch (error) {
         if (error.status === 401) {
             return await deleteDropboxImages(req, res);
         }
@@ -311,8 +342,7 @@ const deleteDropboxImages = async (req, res) => {
         });
     }
 };
-exports.deleteDropboxImages = deleteDropboxImages;
-const moveImagesToDeletedFolder = async (req, res) => {
+const moveImagesToDeletedFolder = async (req, res)=>{
     const { images, slug } = req.body;
     if (!dbx.auth.getAccessToken()) {
         ;
@@ -321,11 +351,13 @@ const moveImagesToDeletedFolder = async (req, res) => {
     const deleteImages = [];
     const databaseImages = [];
     try {
-        for (const img of images) {
-            const image = await Image_1.default.findById(img.id).lean();
+        for (const img of images){
+            const image = await _Image.default.findById(img.id).lean();
             if (image) {
                 databaseImages.push(image);
-                deleteImages.push({ path: image.path });
+                deleteImages.push({
+                    path: image.path
+                });
             }
         }
         const entries = prepareImagesEntries(deleteImages, slug, 'Delete Folder');
@@ -333,28 +365,28 @@ const moveImagesToDeletedFolder = async (req, res) => {
             entries
         });
         let retry = 20;
-        while (retry) {
-            const job = await checkMoveBatch({ async_job_id: filesMove.async_job_id });
+        while(retry){
+            const job = await checkMoveBatch({
+                async_job_id: filesMove.async_job_id
+            });
             if (job.result['.tag'] === 'complete') {
                 retry = 0;
-            }
-            else {
-                await (0, utils_1.sleep)(1000);
+            } else {
+                await (0, _utils.sleep)(1000);
                 retry -= 1;
             }
         }
-        for (const img of databaseImages) {
-            await Image_1.default.findByIdAndUpdate(img._id, {
+        for (const img of databaseImages){
+            await _Image.default.findByIdAndUpdate(img._id, {
                 $set: {
-                    path: entries.find((x) => x.from_path === img.path)?.to_path
+                    path: entries.find((x)=>x.from_path === img.path)?.to_path
                 }
             });
         }
         res.status(200).json({
             success: true
         });
-    }
-    catch (error) {
+    } catch (error) {
         if (error.status === 401) {
             return await moveImagesToDeletedFolder(req, res);
         }
@@ -364,10 +396,9 @@ const moveImagesToDeletedFolder = async (req, res) => {
         });
     }
 };
-exports.moveImagesToDeletedFolder = moveImagesToDeletedFolder;
-const refreshToken = async () => {
+const refreshToken = async ()=>{
     try {
-        return await axios_1.default.post('https://api.dropbox.com/oauth2/token', querystring.stringify({
+        return await _axios.default.post('https://api.dropbox.com/oauth2/token', _querystring.stringify({
             refresh_token: process.env.DROPBOX_REFRESH_TOKEN,
             grant_type: 'refresh_token',
             client_id: process.env.DROPBOX_CLIENT_ID,
@@ -377,14 +408,12 @@ const refreshToken = async () => {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         return null;
     }
 };
-exports.refreshToken = refreshToken;
-const handleDropboxError = async (error, dbx) => {
+const handleDropboxError = async (error, dbx)=>{
     if (error.status === 401) {
         const token = await refreshToken();
         if (token?.data) {
@@ -394,12 +423,13 @@ const handleDropboxError = async (error, dbx) => {
     }
     return null;
 };
-exports.handleDropboxError = handleDropboxError;
-const prepareImagesEntries = (images, slug, path) => {
-    return images.map((image, index) => {
+const prepareImagesEntries = (images, slug, path)=>{
+    return images.map((image, index)=>{
         return {
             from_path: image.path,
             to_path: `/${path}/${slug}/${new Date().toISOString()}-${index}.jpg`
         };
     });
 };
+
+//# sourceMappingURL=dropbox.js.map

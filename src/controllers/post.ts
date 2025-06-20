@@ -126,7 +126,7 @@ export const createPost = async (
         })
 
         await sendLogMessage({
-          channel: process.env.SLACK_WEBHOOK_POST_LOG,
+          channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *created*`,
           type: messageType.SUCCESS,
           data: final,
@@ -314,7 +314,7 @@ export const updatePost = async (
         })
 
         await sendLogMessage({
-          channel: process.env.SLACK_WEBHOOK_POST_LOG,
+          channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *updated*`,
           type: messageType.WARNING,
           data: final,
@@ -408,7 +408,7 @@ export const deletePosts = async (
         .map((post) => post.image)
         .concat(posts.flatMap((post) => post.images || []))
         .filter(Boolean)
-        .map((img) => img.path || img.url || '')
+        .map((img) => img?.path || img?.url || '')
         .filter(Boolean)
 
       await callDeleteImages({
@@ -419,7 +419,7 @@ export const deletePosts = async (
 
       for (const post of posts) {
         await sendLogMessage({
-          channel: process.env.SLACK_WEBHOOK_POST_LOG,
+          channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *deleted*`,
           type: messageType.ERROR,
           data: post,

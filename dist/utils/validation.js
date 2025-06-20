@@ -1,63 +1,58 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateRange = exports.validateSlug = exports.validateEmail = exports.validateRequiredFields = void 0;
-const errors_1 = require("./errors");
-const constants_1 = require("./constants");
-/**
- * Validates that all required fields are present
- * @param data Object to validate
- * @param requiredFields Array of required field names
- * @throws ValidationError if any required field is missing
- */
-const validateRequiredFields = (data, requiredFields) => {
-    const missingFields = requiredFields.filter((field) => !data[field] ||
-        data[field] === undefined ||
-        data[field] === null ||
-        data[field] === '');
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get default () {
+        return _default;
+    },
+    get validateEmail () {
+        return validateEmail;
+    },
+    get validateRange () {
+        return validateRange;
+    },
+    get validateRequiredFields () {
+        return validateRequiredFields;
+    },
+    get validateSlug () {
+        return validateSlug;
+    }
+});
+const _errors = require("./errors");
+const _constants = require("./constants");
+const validateRequiredFields = (data, requiredFields)=>{
+    const missingFields = requiredFields.filter((field)=>!data[field] || data[field] === undefined || data[field] === null || data[field] === '');
     if (missingFields.length > 0) {
-        throw new errors_1.ValidationError(`${missingFields.join(', ')} is required`, missingFields[0]);
+        throw new _errors.ValidationError(`${missingFields.join(', ')} is required`, missingFields[0]);
     }
 };
-exports.validateRequiredFields = validateRequiredFields;
-/**
- * Validates an email address
- * @param email Email to validate
- * @throws ValidationError if email is invalid
- */
-const validateEmail = (email) => {
-    if (!constants_1.REGEX.EMAIL.test(email)) {
-        throw new errors_1.ValidationError('Invalid email format', 'email');
+const validateEmail = (email)=>{
+    if (!_constants.REGEX.EMAIL.test(email)) {
+        throw new _errors.ValidationError('Invalid email format', 'email');
     }
 };
-exports.validateEmail = validateEmail;
-/**
- * Validates a slug
- * @param slug Slug to validate
- * @throws ValidationError if slug is invalid
- */
-const validateSlug = (slug) => {
-    if (!constants_1.REGEX.SLUG.test(slug)) {
-        throw new errors_1.ValidationError('Slug must contain only lowercase letters, numbers, and hyphens', 'slug');
+const validateSlug = (slug)=>{
+    if (!_constants.REGEX.SLUG.test(slug)) {
+        throw new _errors.ValidationError('Slug must contain only lowercase letters, numbers, and hyphens', 'slug');
     }
 };
-exports.validateSlug = validateSlug;
-/**
- * Validates a value is within a numeric range
- * @param value Value to validate
- * @param min Minimum allowed value
- * @param max Maximum allowed value
- * @param fieldName Field name for error messages
- * @throws ValidationError if value is outside of range
- */
-const validateRange = (value, min, max, fieldName) => {
+const validateRange = (value, min, max, fieldName)=>{
     if (value < min || value > max) {
-        throw new errors_1.ValidationError(`${fieldName} must be between ${min} and ${max}`, fieldName);
+        throw new _errors.ValidationError(`${fieldName} must be between ${min} and ${max}`, fieldName);
     }
 };
-exports.validateRange = validateRange;
-exports.default = {
-    validateRequiredFields: exports.validateRequiredFields,
-    validateEmail: exports.validateEmail,
-    validateSlug: exports.validateSlug,
-    validateRange: exports.validateRange
+const _default = {
+    validateRequiredFields,
+    validateEmail,
+    validateSlug,
+    validateRange
 };
+
+//# sourceMappingURL=validation.js.map

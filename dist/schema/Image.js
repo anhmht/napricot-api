@@ -1,17 +1,33 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const imageSchema = new mongoose_1.default.Schema({
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _mongoose = /*#__PURE__*/ _interop_require_default(require("mongoose"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const imageSchema = new _mongoose.default.Schema({
     path: {
         type: String,
-        required: [true, 'path is required']
+        required: [
+            true,
+            'path is required'
+        ]
     },
     url: {
         type: String,
-        required: [true, 'url is required']
+        required: [
+            true,
+            'url is required'
+        ]
     },
     thumbnailPath: {
         type: String
@@ -25,4 +41,6 @@ const imageSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true
 });
-exports.default = mongoose_1.default.model('images', imageSchema, 'images');
+const _default = _mongoose.default.model('images', imageSchema, 'images');
+
+//# sourceMappingURL=Image.js.map

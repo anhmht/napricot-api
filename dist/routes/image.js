@@ -1,18 +1,29 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// Import controllers
-const dropbox_1 = require("../controllers/dropbox");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _dropbox = require("../controllers/dropbox");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // uploadImage
-router.post('/upload', dropbox_1.uploadImage);
+router.post('/upload', _dropbox.uploadImage);
 // move Image
-router.post('/move', dropbox_1.moveAndGetLink);
+router.post('/move', _dropbox.moveAndGetLink);
 // delete Image
-router.post('/delete', dropbox_1.deleteDropboxImages);
+router.post('/delete', _dropbox.deleteDropboxImages);
 // move Images to Deleted Folder
-router.post('/move-to-deleted-folder', dropbox_1.moveImagesToDeletedFolder);
-exports.default = router;
+router.post('/move-to-deleted-folder', _dropbox.moveImagesToDeletedFolder);
+const _default = router;
+
+//# sourceMappingURL=image.js.map

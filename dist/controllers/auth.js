@@ -1,23 +1,34 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = void 0;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const password_1 = require("../utils/password");
-const User_1 = __importDefault(require("../schema/User"));
-const login = async (req, res, next) => {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "login", {
+    enumerable: true,
+    get: function() {
+        return login;
+    }
+});
+const _jsonwebtoken = /*#__PURE__*/ _interop_require_default(require("jsonwebtoken"));
+const _password = require("../utils/password");
+const _User = /*#__PURE__*/ _interop_require_default(require("../schema/User"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const login = async (req, res, next)=>{
     const { email, password } = req.body;
     try {
-        const existingUser = await User_1.default.findOne({ email });
+        const existingUser = await _User.default.findOne({
+            email
+        });
         if (!existingUser) {
             res.status(404).json({
                 message: 'Invalid email or password'
             });
             return next(new Error('Invalid email or password'));
         }
-        const isPasswordMatch = await (0, password_1.comparePassword)(password, existingUser.password);
+        const isPasswordMatch = await (0, _password.comparePassword)(password, existingUser.password);
         if (!isPasswordMatch) {
             res.status(404).json({
                 message: 'Invalid email or password'
@@ -27,7 +38,7 @@ const login = async (req, res, next) => {
         let token;
         try {
             // Creating jwt token
-            token = jsonwebtoken_1.default.sign({
+            token = _jsonwebtoken.default.sign({
                 userId: existingUser._id,
                 email: existingUser.email,
                 roles: existingUser.roles,
@@ -36,8 +47,7 @@ const login = async (req, res, next) => {
                 expiresIn: '10 years',
                 algorithm: 'HS256'
             });
-        }
-        catch (err) {
+        } catch (err) {
             const error = new Error('Error! Something went wrong.');
             res.status(500).json({
                 message: 'Error! Something went wrong.',
@@ -54,8 +64,7 @@ const login = async (req, res, next) => {
                 token: token
             }
         });
-    }
-    catch (err) {
+    } catch (err) {
         res.status(500).json({
             message: 'Error! Something went wrong.',
             err
@@ -63,4 +72,5 @@ const login = async (req, res, next) => {
         return next(err);
     }
 };
-exports.login = login;
+
+//# sourceMappingURL=auth.js.map

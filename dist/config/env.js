@@ -1,18 +1,25 @@
-"use strict";
 /**
  * Environment configuration
  * Centralizes all environment-related settings
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = void 0;
-// Debug: Log the raw PORT environment variable
+ */ // Debug: Log the raw PORT environment variable
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "config", {
+    enumerable: true,
+    get: function() {
+        return config;
+    }
+});
 console.log('Raw PORT environment variable:', process.env.PORT);
-// Parse and provide environment variables with defaults
-exports.config = {
+const config = {
     port: parseInt(process.env.PORT ?? '8080', 10),
     nodeEnv: process.env.NODE_ENV ?? 'development',
     whitelist: process.env.WHITELIST_DOMAIN?.split(',') ?? [],
-    isProduction: process.env.NODE_ENV === 'production'
+    isProduction: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
 };
 // Debug: Log the parsed port value
-console.log('Parsed PORT value:', exports.config.port);
+console.log('Parsed PORT value:', config.port);
+
+//# sourceMappingURL=env.js.map

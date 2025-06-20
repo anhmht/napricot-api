@@ -1,12 +1,23 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// Import controller
-const slack_1 = require("../controllers/slack");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _slack = require("../controllers/slack");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // purge Cloudflare cache
-router.post('/cloudflare/purge', slack_1.clearCloudflareCached);
-exports.default = router;
+router.post('/cloudflare/purge', _slack.clearCloudflareCached);
+const _default = router;
+
+//# sourceMappingURL=slack.js.map

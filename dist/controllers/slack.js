@@ -1,30 +1,59 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearCloudflareCached = exports.sendLogMessage = exports.submitSitemap = exports.sendSlackMessage = exports.dataTypes = exports.messageType = void 0;
-const axios_1 = __importDefault(require("axios"));
-const googleapis_1 = require("googleapis");
-const User_1 = __importDefault(require("../schema/User"));
-const Category_1 = __importDefault(require("../schema/Category"));
-exports.messageType = {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get clearCloudflareCached () {
+        return clearCloudflareCached;
+    },
+    get dataTypes () {
+        return dataTypes;
+    },
+    get messageType () {
+        return messageType;
+    },
+    get sendLogMessage () {
+        return sendLogMessage;
+    },
+    get sendSlackMessage () {
+        return sendSlackMessage;
+    },
+    get submitSitemap () {
+        return submitSitemap;
+    }
+});
+const _axios = /*#__PURE__*/ _interop_require_default(require("axios"));
+const _googleapis = require("googleapis");
+const _User = /*#__PURE__*/ _interop_require_default(require("../schema/User"));
+const _Category = /*#__PURE__*/ _interop_require_default(require("../schema/Category"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const messageType = {
     SUCCESS: '#3ea556',
     ERROR: '#ef0000',
     WARNING: '#f2c744',
     INFO: '#d8d8d8'
 };
-exports.dataTypes = {
+const dataTypes = {
     POST: 'POST',
     PRODUCT: 'PRODUCT',
     ODER: 'ORDER'
 };
-const sendSlackMessage = async ({ channel, message, type }) => {
+const sendSlackMessage = async ({ channel, message, type })=>{
     try {
-        await axios_1.default.post(channel, {
+        await _axios.default.post(channel, {
             attachments: [
                 {
-                    color: exports.messageType[type],
+                    color: messageType[type],
                     fallback: message,
                     blocks: [
                         {
@@ -57,69 +86,60 @@ const sendSlackMessage = async ({ channel, message, type }) => {
                 'Content-Type': 'application/json'
             }
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.log('Error sending slack message:', error);
     }
 };
-exports.sendSlackMessage = sendSlackMessage;
-const submitSitemap = async () => {
+const submitSitemap = async ()=>{
     try {
         // Parse credentials from an environment variable (for compatibility with JS)
-        const credentials = process.env.GOOGLE_CREDENTIALS
-            ? JSON.parse(process.env.GOOGLE_CREDENTIALS)
-            : undefined;
-        const auth = credentials
-            ? new googleapis_1.google.auth.GoogleAuth({
-                credentials,
-                scopes: ['https://www.googleapis.com/auth/webmasters']
-            })
-            : new googleapis_1.google.auth.JWT(process.env.GOOGLE_CLIENT_EMAIL, undefined, process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'), ['https://www.googleapis.com/auth/webmasters']);
+        const credentials = process.env.GOOGLE_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CREDENTIALS) : undefined;
+        const auth = credentials ? new _googleapis.google.auth.GoogleAuth({
+            credentials,
+            scopes: [
+                'https://www.googleapis.com/auth/webmasters'
+            ]
+        }) : new _googleapis.google.auth.JWT(process.env.GOOGLE_CLIENT_EMAIL, undefined, process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'), [
+            'https://www.googleapis.com/auth/webmasters'
+        ]);
         let client;
-        if (credentials && auth instanceof googleapis_1.google.auth.GoogleAuth) {
+        if (credentials && auth instanceof _googleapis.google.auth.GoogleAuth) {
             client = await auth.getClient();
-        }
-        else {
+        } else {
             client = await auth.authorize();
         }
-        const webmasters = googleapis_1.google.webmasters({
+        const webmasters = _googleapis.google.webmasters({
             version: 'v3',
             auth: client || auth
         });
-        const siteUrl = credentials
-            ? 'sc-domain:napricot.com'
-            : process.env.FRONTEND_URL || '';
-        const sitemapUrl = credentials
-            ? 'https://napricot.com/sitemap.xml'
-            : `${process.env.FRONTEND_URL}/sitemap.xml`;
+        const siteUrl = credentials ? 'sc-domain:napricot.com' : process.env.FRONTEND_URL || '';
+        const sitemapUrl = credentials ? 'https://napricot.com/sitemap.xml' : `${process.env.FRONTEND_URL}/sitemap.xml`;
         await webmasters.sitemaps.submit({
             siteUrl,
             feedpath: sitemapUrl
         });
-        await (0, exports.sendSlackMessage)({
+        await sendSlackMessage({
             channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
             message: 'Submit new sitemap.xml to google search console. :confetti_ball:',
             type: 'SUCCESS'
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.log('Error submitting sitemap:', error);
     }
 };
-exports.submitSitemap = submitSitemap;
-const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
+const sendLogMessage = async ({ channel, message, type, data, dataType })=>{
     let content = {};
-    switch (dataType) {
-        case exports.dataTypes.POST:
+    switch(dataType){
+        case dataTypes.POST:
             content = await getPostData(data);
             break;
         default:
             break;
     }
-    return await axios_1.default.post(channel, {
+    return await _axios.default.post(channel, {
         attachments: [
             {
-                color: exports.messageType[type],
+                color: messageType[type],
                 fallback: message,
                 blocks: [
                     {
@@ -176,13 +196,10 @@ const sendLogMessage = async ({ channel, message, type, data, dataType }) => {
         }
     });
 };
-exports.sendLogMessage = sendLogMessage;
-const getPostData = async (post) => {
-    const author = await User_1.default.findById(post.author).lean();
-    const updatedBy = post.updatedBy
-        ? await User_1.default.findById(post.updatedBy).lean()
-        : null;
-    const category = await Category_1.default.findById(post.categoryId).lean();
+const getPostData = async (post)=>{
+    const author = await _User.default.findById(post.author).lean();
+    const updatedBy = post.updatedBy ? await _User.default.findById(post.updatedBy).lean() : null;
+    const category = await _Category.default.findById(post.categoryId).lean();
     return {
         authorName: author?.name || '',
         updatedBy: updatedBy?.name || '',
@@ -193,21 +210,21 @@ const getPostData = async (post) => {
         status: post.status
     };
 };
-const clearCloudflareCached = async (req, res, next) => {
+const clearCloudflareCached = async (req, res, next)=>{
     const { event } = req.body;
     const slackEvent = event;
     /*
-     * bot: Heroku ChatOps
-     * channel: #narpicot-web-build
-     */
-    if (slackEvent.bot_id !== 'B07AW7M5XV2' ||
-        slackEvent.channel !== 'C07BGFT0U5N') {
-        res.status(200).json({ success: true });
+   * bot: Heroku ChatOps
+   * channel: #narpicot-web-build
+   */ if (slackEvent.bot_id !== 'B07AW7M5XV2' || slackEvent.channel !== 'C07BGFT0U5N') {
+        res.status(200).json({
+            success: true
+        });
         return;
     }
     if (slackEvent.attachments[0].text.includes('Deployed')) {
         try {
-            const { data } = await axios_1.default.post(`https://api.cloudflare.com/client/v4/zones/${process.env.CLOUDFLARE_ZONE_ID}/purge_cache`, {
+            const { data } = await _axios.default.post(`https://api.cloudflare.com/client/v4/zones/${process.env.CLOUDFLARE_ZONE_ID}/purge_cache`, {
                 purge_everything: true
             }, {
                 headers: {
@@ -221,24 +238,25 @@ const clearCloudflareCached = async (req, res, next) => {
                 });
                 return;
             }
-            await (0, exports.sendSlackMessage)({
+            await sendSlackMessage({
                 channel: process.env.SLACK_WEBHOOK_WEB_BUILD,
                 message: 'Clear cache from Cloudflare. :white_check_mark:',
                 type: 'SUCCESS'
             });
             if (slackEvent.attachments[0].text.includes('|napricot-web>')) {
-                await (0, exports.submitSitemap)();
+                await submitSitemap();
             }
             res.status(200).json({
                 success: data.success
             });
-        }
-        catch (error) {
+        } catch (error) {
             return next(error);
         }
-    }
-    else {
-        res.status(200).json({ success: true });
+    } else {
+        res.status(200).json({
+            success: true
+        });
     }
 };
-exports.clearCloudflareCached = clearCloudflareCached;
+
+//# sourceMappingURL=slack.js.map

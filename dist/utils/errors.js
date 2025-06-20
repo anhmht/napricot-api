@@ -1,72 +1,119 @@
-"use strict";
 /**
  * Centralized error handling utilities
  * Provides custom error classes for better error classification and handling
- */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorHandler = exports.ValidationError = exports.NotFoundError = exports.ForbiddenError = exports.UnauthorizedError = exports.BadRequestError = exports.HttpError = void 0;
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get BadRequestError () {
+        return BadRequestError;
+    },
+    get ForbiddenError () {
+        return ForbiddenError;
+    },
+    get HttpError () {
+        return HttpError;
+    },
+    get NotFoundError () {
+        return NotFoundError;
+    },
+    get UnauthorizedError () {
+        return UnauthorizedError;
+    },
+    get ValidationError () {
+        return ValidationError;
+    },
+    get default () {
+        return _default;
+    },
+    get errorHandler () {
+        return errorHandler;
+    }
+});
+const _logger = /*#__PURE__*/ _interop_require_default(require("./logger"));
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
 class HttpError extends Error {
-    constructor(message, statusCode = 500) {
-        super(message);
+    constructor(message, statusCode = 500){
+        super(message), _define_property(this, "statusCode", void 0);
         this.name = this.constructor.name;
         this.statusCode = statusCode;
         Error.captureStackTrace(this, this.constructor);
     }
 }
-exports.HttpError = HttpError;
 class BadRequestError extends HttpError {
-    constructor(message = 'Bad request') {
+    constructor(message = 'Bad request'){
         super(message, 400);
     }
 }
-exports.BadRequestError = BadRequestError;
 class UnauthorizedError extends HttpError {
-    constructor(message = 'Unauthorized') {
+    constructor(message = 'Unauthorized'){
         super(message, 401);
     }
 }
-exports.UnauthorizedError = UnauthorizedError;
 class ForbiddenError extends HttpError {
-    constructor(message = 'Forbidden') {
+    constructor(message = 'Forbidden'){
         super(message, 403);
     }
 }
-exports.ForbiddenError = ForbiddenError;
 class NotFoundError extends HttpError {
-    constructor(message = 'Resource not found') {
+    constructor(message = 'Resource not found'){
         super(message, 404);
     }
 }
-exports.NotFoundError = NotFoundError;
 class ValidationError extends HttpError {
-    constructor(message = 'Validation error', field) {
-        super(message, 400);
+    constructor(message = 'Validation error', field){
+        super(message, 400), _define_property(this, "field", void 0);
         this.field = field;
     }
 }
-exports.ValidationError = ValidationError;
-const logger_1 = __importDefault(require("./logger"));
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next)=>{
     const statusCode = 'statusCode' in err ? err.statusCode : 500;
     const field = 'field' in err ? err.field : undefined;
-    logger_1.default.error(`${statusCode} error:`, err);
-    res.status(statusCode).json({
+    _logger.default.error(`${statusCode} error:`, err);
+    const response = {
         error: true,
-        message: err.message || 'Internal server error',
-        ...(field && { field }),
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
+        message: err.message || 'Internal server error'
+    };
+    if (field) {
+        response.field = field;
+    }
+    if (process.env.NODE_ENV === 'development' && err.stack) {
+        response.stack = err.stack;
+    }
+    res.status(statusCode).json(response);
 };
-exports.errorHandler = errorHandler;
-exports.default = {
+const _default = {
     HttpError,
     BadRequestError,
     UnauthorizedError,
     ForbiddenError,
     NotFoundError,
     ValidationError,
-    errorHandler: exports.errorHandler
+    errorHandler
 };
+
+//# sourceMappingURL=errors.js.map

@@ -1,48 +1,70 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
+Object.defineProperty(exports, "__esModule", {
+    value: true
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _mongoose = /*#__PURE__*/ _interop_require_wildcard(require("mongoose"));
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
         };
-        return ownKeys(o);
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
     };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const productSchema = new mongoose_1.Schema({
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+const productSchema = new _mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Product name is required'],
+        required: [
+            true,
+            'Product name is required'
+        ],
         unique: true
     },
     slug: {
         type: String,
-        required: [true, 'Product slug is required'],
+        required: [
+            true,
+            'Product slug is required'
+        ],
         unique: true
     },
     desc: {
@@ -87,7 +109,10 @@ const productSchema = new mongoose_1.Schema({
     ],
     price: {
         type: Number,
-        required: [true, 'Product price is required']
+        required: [
+            true,
+            'Product price is required'
+        ]
     },
     size: [
         {
@@ -116,8 +141,15 @@ const productSchema = new mongoose_1.Schema({
     ],
     type: {
         type: String,
-        enum: ['clothing', 'accessories', 'digital'],
-        required: [true, 'Product type is required']
+        enum: [
+            'clothing',
+            'accessories',
+            'digital'
+        ],
+        required: [
+            true,
+            'Product type is required'
+        ]
     },
     files: [
         {
@@ -134,21 +166,31 @@ const productSchema = new mongoose_1.Schema({
         default: false
     },
     categoryId: {
-        type: mongoose_1.Schema.Types.ObjectId,
+        type: _mongoose.Schema.Types.ObjectId,
         ref: 'categories',
-        required: [true, 'Product category is required']
+        required: [
+            true,
+            'Product category is required'
+        ]
     },
     content: {
         type: String
     },
     author: {
-        type: mongoose_1.Schema.Types.ObjectId,
+        type: _mongoose.Schema.Types.ObjectId,
         ref: 'users',
-        required: [true, 'Product author is required']
+        required: [
+            true,
+            'Product author is required'
+        ]
     },
     status: {
         type: String,
-        enum: ['draft', 'published', 'deleted'],
+        enum: [
+            'draft',
+            'published',
+            'deleted'
+        ],
         default: 'draft'
     },
     tags: [
@@ -175,4 +217,6 @@ const productSchema = new mongoose_1.Schema({
 }, {
     timestamps: true
 });
-exports.default = mongoose_1.default.model('products', productSchema, 'products');
+const _default = _mongoose.default.model('products', productSchema, 'products');
+
+//# sourceMappingURL=Product.js.map

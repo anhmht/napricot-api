@@ -1,12 +1,25 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-// Import controller
-const stripe_1 = require("../controllers/stripe");
-const router = express_1.default.Router();
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _express = /*#__PURE__*/ _interop_require_default(require("express"));
+const _stripe = require("../controllers/stripe");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+const router = _express.default.Router();
 // Handle Stripe webhook
-router.post('/webhook', express_1.default.raw({ type: 'application/json' }), stripe_1.handleWebhook);
-exports.default = router;
+router.post('/webhook', _express.default.raw({
+    type: 'application/json'
+}), _stripe.handleWebhook);
+const _default = router;
+
+//# sourceMappingURL=stripe.js.map

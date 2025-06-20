@@ -1,19 +1,30 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+const _mongoose = /*#__PURE__*/ _interop_require_default(require("mongoose"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
 // mongoose.set('strictQuery', false)
 // mongoose.set('useUnifiedTopology', true)
-const connectDB = async () => {
+const connectDB = async ()=>{
     try {
-        const conn = await mongoose_1.default.connect(process.env.MONGO_URI);
+        const conn = await _mongoose.default.connect(process.env.MONGO_URI);
         console.log(`MongoDB connected: ${conn.connection.host}`);
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
         process.exit(1);
     }
 };
-exports.default = connectDB;
+const _default = connectDB;
+
+//# sourceMappingURL=db.js.map

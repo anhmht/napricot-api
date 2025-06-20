@@ -60,9 +60,9 @@ const createProduct = async (
     })
 
     try {
-      const imagePaths = [image, ...images, ...contentImages].map(
-        (img) => img.path || img.url
-      )
+      const imagePaths = [image, ...images, ...contentImages]
+        .filter(Boolean)
+        .map((img) => img.path || img.url || '')
 
       const result = await callMoveAndGetLink({
         slug: product.slug,
@@ -75,7 +75,7 @@ const createProduct = async (
       const { data } = result
 
       let content = product.content || ''
-      data.images.forEach((element) => {
+      data.images.forEach((element: any) => {
         if (content.includes(element.url)) {
           content = content.replace(element.url, element.thumbnailUrl || '')
         }
@@ -92,22 +92,22 @@ const createProduct = async (
             },
             images: data.images
               .filter(
-                (img) =>
+                (img: any) =>
                   img._id !== id &&
                   !contentImages.map((i) => i.id).includes(img._id || '')
               )
-              .map((img) => ({
+              .map((img: any) => ({
                 id: img._id,
                 url: img.url,
                 thumbnail: img.thumbnailUrl
               })),
             contentImages: data.images
               .filter(
-                (img) =>
+                (img: any) =>
                   img._id !== id &&
                   !images.map((i) => i.id).includes(img._id || '')
               )
-              .map((img) => ({
+              .map((img: any) => ({
                 id: img._id,
                 url: img.url,
                 thumbnail: img.thumbnailUrl
@@ -169,7 +169,7 @@ const updateProduct = async (
     }
 
     if (product.images) {
-      images.forEach((img) => {
+      images.forEach((img: any) => {
         if (
           !product.images?.find((productImage) => productImage.id === img.id)
         ) {
@@ -177,22 +177,22 @@ const updateProduct = async (
         }
       })
 
-      product.images.forEach((img) => {
-        if (!images.find((image) => image.id === img.id)) {
+      product.images.forEach((img: any) => {
+        if (!images.find((image: any) => image.id === img.id)) {
           deleteImages.push(img as unknown as ImageData)
         }
       })
     }
 
     if (product.contentImages) {
-      contentImages.forEach((img) => {
-        if (!product.contentImages?.find((image) => image.id === img.id)) {
+      contentImages.forEach((img: any) => {
+        if (!product.contentImages?.find((image: any) => image.id === img.id)) {
           insertImages.push(img as ImageData)
         }
       })
 
-      product.contentImages.forEach((img) => {
-        if (!contentImages.find((image) => image.id === img.id)) {
+      product.contentImages.forEach((img: any) => {
+        if (!contentImages.find((image: any) => image.id === img.id)) {
           deleteImages.push(img as unknown as ImageData)
         }
       })
