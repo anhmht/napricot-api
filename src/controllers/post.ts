@@ -9,7 +9,7 @@ import {
 } from '../utils'
 
 import { broadcast, notificationType } from './webSocket'
-import { sendLogMessage, dataTypes } from './slack'
+import { sendLogMessage, dataTypes, messageType } from './slack'
 
 export const createPost = async (
   req: Request,
@@ -128,9 +128,9 @@ export const createPost = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG,
           message: `Napricot post *created*`,
-          type: 'SUCCESS',
+          type: messageType.SUCCESS,
           data: final,
-          dataType: 'POST' as keyof typeof dataTypes
+          dataType: dataTypes.POST
         })
       }
     } catch (error) {
@@ -221,7 +221,7 @@ export const updatePost = async (
 
     if (post.image && image && post.image.id !== image.id) {
       insertImages.push(image as ImageData)
-      deleteImages.push(post.image as unknown as ImageData)
+      deleteImages.push(post.image as ImageData)
     }
 
     if (post.images && images) {
@@ -233,7 +233,7 @@ export const updatePost = async (
 
       post.images.forEach((img) => {
         if (!images.find((image: any) => image.id === img.id)) {
-          deleteImages.push(img as unknown as ImageData)
+          deleteImages.push(img as ImageData)
         }
       })
     }
@@ -316,9 +316,9 @@ export const updatePost = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG,
           message: `Napricot post *updated*`,
-          type: 'WARNING',
+          type: messageType.WARNING,
           data: final,
-          dataType: 'POST' as keyof typeof dataTypes
+          dataType: dataTypes.POST
         })
       }
     } catch (error) {
@@ -421,9 +421,9 @@ export const deletePosts = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG,
           message: `Napricot post *deleted*`,
-          type: 'ERROR',
+          type: messageType.ERROR,
           data: post,
-          dataType: 'POST' as keyof typeof dataTypes
+          dataType: dataTypes.POST
         })
       }
     } catch (error) {
@@ -456,7 +456,7 @@ export const getPosts = async (
       title,
       categoryId,
       status
-    } = req.query as unknown as PostQueryParams
+    } = req.query as PostQueryParams
 
     const search = createSearchObject({
       searchLikeObject: title ? { title } : undefined,

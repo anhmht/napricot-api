@@ -28,17 +28,6 @@ interface SlackEvent {
   [key: string]: any
 }
 
-interface SlackMessageParams {
-  channel: string
-  message: string
-  type: keyof typeof messageType
-  fields?: Array<{
-    title: string
-    value: string
-    short?: boolean
-  }>
-}
-
 export const sendSlackMessage = async ({
   channel,
   message,
@@ -152,9 +141,9 @@ export const sendLogMessage = async ({
 }: {
   channel: string
   message: string
-  type: keyof typeof messageType
+  type: (typeof messageType)[keyof typeof messageType]
   data: any
-  dataType: keyof typeof dataTypes
+  dataType: (typeof dataTypes)[keyof typeof dataTypes]
 }) => {
   let content: any = {}
   switch (dataType) {
