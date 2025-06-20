@@ -73,8 +73,6 @@ typings/
 .nuxt
 
 # Nuxt generate
-dist
-dist.*
 .output
 .output.*
 

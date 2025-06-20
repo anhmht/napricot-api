@@ -9,7 +9,6 @@
     "migrate": "./node_modules/.bin/migrate up",
     "start": "pm2-runtime start ecosystem.config.js --env",
     "build": "tsc",
-    "prestart": "yarn build",
     "dev": "nodemon --exec ts-node src/index.ts",
     "eslint": "eslint src/**/*.ts",
     "eslint:fix": "yarn eslint --fix"
