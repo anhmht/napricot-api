@@ -277,7 +277,7 @@ const moveAndGetLink = async (req: Request, res: Response): Promise<void> => {
       result.push(image)
       const b = new Date()
       console.log(
-        'Time taken to get thumbnail:',
+        'Time taken to upload image:',
         b.getTime() - a.getTime(),
         images[index].id
       )
