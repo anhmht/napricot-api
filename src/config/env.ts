@@ -11,7 +11,8 @@ export const config = {
   port: parseInt(process.env.PORT ?? '8080', 10),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   whitelist: process.env.WHITELIST_DOMAIN?.split(',') ?? [],
-  isProduction: process.env.NODE_ENV === 'production'
+  isProduction:
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
 }
 
 // Debug: Log the parsed port value

@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'napricot-api',
-      script: 'dist/index.js',
+      script: './dist/index.js',
       // Specify delay between watch interval
       watch_delay: 1000,
       watch: false,
