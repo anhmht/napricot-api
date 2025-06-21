@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'napricot-api',
-      script: 'index.js',
+      script: 'dist/index.js',
       // Specify delay between watch interval
       watch_delay: 1000,
       watch: false,
@@ -14,11 +14,7 @@ module.exports = {
       instances: process.env.INSTANCES || 1,
       exec_mode: 'fork', // Changed from cluster to fork for single instance
       wait_ready: true,
-      autorestart: true,
-      env: {
-        // NODE_TLS_REJECT_UNAUTHORIZED: '0',
-        NODE_ENV: 'production'
-      }
+      autorestart: true
     }
   ]
 }
