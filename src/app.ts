@@ -32,9 +32,6 @@ import logger from './utils/logger'
 function setupApp(): Application {
   const app = express()
 
-  // Enable trust proxy for Heroku/production environments
-  app.set('trust proxy', 1)
-
   // Stripe Webhook use raw body
   app.use('/stripe', stripeRoutes)
 
@@ -43,19 +40,6 @@ function setupApp(): Application {
     if (accessToken) {
       app.locals.dropboxAccessToken = accessToken
     }
-  })
-
-  // Debug middleware to log headers BEFORE CORS
-  app.use((req, res, next) => {
-    console.log('=== REQUEST DEBUG ===')
-    console.log('Method:', req.method)
-    console.log('URL:', req.url)
-    console.log('Origin header:', req.headers.origin)
-    console.log('Referer header:', req.headers.referer)
-    console.log('User-Agent:', req.headers['user-agent'])
-    console.log('All headers:', JSON.stringify(req.headers, null, 2))
-    console.log('=== END DEBUG ===')
-    next()
   })
 
   // Apply CORS BEFORE other middleware

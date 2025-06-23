@@ -14,10 +14,8 @@ export function configureCors() {
 
   const corsOptions: cors.CorsOptions = {
     origin: (origin: string | undefined, callback) => {
-      console.log('CORS Origin check:', origin, 'Whitelist:', config.whitelist)
       // Allow requests with no origin (like mobile apps, Postman, server-to-server)
       if (!origin) {
-        console.log('CORS: No origin provided, allowing request')
         callback(null, true)
         return
       }
