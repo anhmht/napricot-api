@@ -53,7 +53,11 @@ function setupApp(): Application {
       limits: {
         fileSize: 10000000 // Around 10MB
       },
-      useTempFiles: true
+      useTempFiles: true,
+      tempFileDir: '/tmp/', // Specify temp directory
+      createParentPath: true, // Create parent directories if they don't exist
+      parseNested: true, // Parse nested objects in req.body
+      debug: process.env.NODE_ENV === 'development' // Enable debug in development
     } as fileUpload.Options)
   )
   app.use(boolParser())
