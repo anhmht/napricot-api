@@ -42,9 +42,11 @@ function setupApp(): Application {
     }
   })
 
-  // Apply middleware
-  app.use(express.json())
+  // Apply CORS BEFORE other middleware
   app.use(configureCors())
+
+  // Apply other middleware
+  app.use(express.json())
   // Use the express-fileupload middleware
   app.use(
     fileUpload({
