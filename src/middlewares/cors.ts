@@ -11,7 +11,6 @@ import { config } from '../config/env'
 export function configureCors() {
   const corsOptions: cors.CorsOptions = {
     origin: (origin: string | undefined, callback) => {
-      console.log('CORS Origin check:', origin)
       // Allow requests with no origin (like mobile apps, Postman, server-to-server)
       if (!origin) {
         callback(null, true)
@@ -20,10 +19,8 @@ export function configureCors() {
 
       // Check if origin is in whitelist
       if (config.whitelist.includes(origin)) {
-        console.log('CORS: Origin allowed')
         callback(null, true)
       } else {
-        console.log('CORS: Origin blocked')
         callback(new Error('Not allowed by CORS'))
       }
     }

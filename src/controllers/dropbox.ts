@@ -1,5 +1,6 @@
 import axios from 'axios'
 import * as querystring from 'querystring'
+import * as fs from 'fs'
 import { Dropbox } from 'dropbox'
 import { sleep } from '../utils'
 import Image from '../schema/Image'
@@ -196,7 +197,15 @@ const uploadImage = async (
     ;(dbx as any).auth.setAccessToken(req.app.locals.dropboxAccessToken)
   }
 
-  const fileContent = Buffer.from(files.data)
+  // When useTempFiles is true, use tempFilePath to read file data
+  let fileContent: Buffer
+  if (files.tempFilePath) {
+    // File is stored in temp directory
+    fileContent = fs.readFileSync(files.tempFilePath)
+  } else {
+    // File is in memory
+    fileContent = Buffer.from(files.data || [])
+  }
 
   try {
     const uploaded = await uploadImageToDropbox({
