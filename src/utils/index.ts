@@ -30,7 +30,11 @@ export const getMissingFields = (
 
 interface MoveAndGetLinkParams {
   slug: string
-  images: string[]
+  images: {
+    id: string
+    url: string
+    path: string
+  }[]
   movePath: string
   req: Request
   nextIndex?: number
@@ -62,7 +66,11 @@ export const callMoveAndGetLink = async ({
 }
 
 interface DeleteImagesParams {
-  images: string[]
+  images: {
+    id: string
+    url: string
+    path: string
+  }[]
   folders: string[]
   req: Request
 }

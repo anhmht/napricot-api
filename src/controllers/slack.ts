@@ -5,14 +5,14 @@ import User from '../schema/User'
 import Category from '../schema/Category'
 import { IPost } from '../models/Post'
 
-export const messageType = {
+export const messageType: Record<string, string> = {
   SUCCESS: '#3ea556',
   ERROR: '#ef0000',
   WARNING: '#f2c744',
   INFO: '#d8d8d8'
 }
 
-export const dataTypes = {
+export const dataTypes: Record<string, string> = {
   POST: 'POST',
   PRODUCT: 'PRODUCT',
   ODER: 'ORDER'
@@ -141,9 +141,9 @@ export const sendLogMessage = async ({
 }: {
   channel: string
   message: string
-  type: (typeof messageType)[keyof typeof messageType]
+  type: string
   data: any
-  dataType: (typeof dataTypes)[keyof typeof dataTypes]
+  dataType: string
 }) => {
   let content: any = {}
   switch (dataType) {
@@ -158,7 +158,7 @@ export const sendLogMessage = async ({
     {
       attachments: [
         {
-          color: messageType[type as keyof typeof messageType],
+          color: type,
           fallback: message,
           blocks: [
             {
