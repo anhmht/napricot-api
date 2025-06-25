@@ -89,6 +89,13 @@ const checkDeleteBatch = async (data: AsyncJobData): Promise<any> => {
     return job
   } catch (error) {
     console.log(error)
+    if ((error as any).status === 409) {
+      return {
+        result: {
+          '.tag': 'complete'
+        }
+      }
+    }
     await handleDropboxError(error, dbx)
     throw error
   }
@@ -116,6 +123,13 @@ const checkMoveBatch = async (data: AsyncJobData): Promise<any> => {
     return job
   } catch (error) {
     console.log(error)
+    if ((error as any).status === 409) {
+      return {
+        result: {
+          '.tag': 'complete'
+        }
+      }
+    }
     await handleDropboxError(error, dbx)
     throw error
   }

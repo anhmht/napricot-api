@@ -241,7 +241,11 @@ export const updatePost = async (
     try {
       const deleteResult = deleteImages.length
         ? await callDeleteImages({
-            images: deleteImages.map((img) => img.path || img.url || ''),
+            images: deleteImages.map((img) => ({
+              id: img.id as string,
+              url: img.url as string,
+              path: img.path as string
+            })),
             folders: [],
             req
           })
@@ -252,7 +256,11 @@ export const updatePost = async (
       const moveResult = insertImages.length
         ? await callMoveAndGetLink({
             slug: post.slug,
-            images: insertImages.map((img) => img.path || img.url || ''),
+            images: insertImages.map((img) => ({
+              id: img.id as string,
+              url: img.url as string,
+              path: img.path as string
+            })),
             movePath: 'Post',
             req
           })
@@ -356,10 +364,11 @@ export const deletePost = async (
 
     try {
       await callDeleteImages({
-        images: [
-          post.image ? post.image.path || post.image.url || '' : '',
-          ...(post.images?.map((img) => img.path || img.url || '') || [])
-        ].filter(Boolean),
+        images: [post.image, ...(post.images || [])].map((img) => ({
+          id: img?.id as string,
+          url: img?.url as string,
+          path: img?.path as string
+        })),
         folders: [`/Post/${post.slug}`],
         req
       })
@@ -407,9 +416,11 @@ export const deletePosts = async (
       const imagesToDelete = posts
         .map((post) => post.image)
         .concat(posts.flatMap((post) => post.images || []))
-        .filter(Boolean)
-        .map((img) => img?.path || img?.url || '')
-        .filter(Boolean)
+        .map((img) => ({
+          id: img?.id as string,
+          url: img?.url as string,
+          path: img?.path as string
+        }))
 
       await callDeleteImages({
         images: imagesToDelete,
