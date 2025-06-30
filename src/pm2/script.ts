@@ -1,9 +1,6 @@
 import pm2 from 'pm2'
 
 const connectPM2AndReload = async (): Promise<void> => {
-  //disable pm2
-  return
-
   // Connect to PM2 with master process
   if (process.env.NODE_APP_INSTANCE === '0') {
     pm2.connect(true, (err) => {
