@@ -230,11 +230,7 @@ const getMe = async (req: Request, res: Response, next: NextFunction) => {
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const a = new Date()
     const users = await User.find()
-    const b = new Date()
-    console.log('Time taken to get users:', b.getTime() - a.getTime())
-
     res.status(200).json({
       users
     })

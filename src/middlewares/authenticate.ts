@@ -3,53 +3,41 @@ import jwt from 'jsonwebtoken'
 import User from '../schema/User'
 
 interface JwtPayload {
-  email: string
+  userId: string
   password: string
 }
 
-export const authenticateJWT = (
+export const authenticateJWT = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  const token = req.header('Authorization')
-
+): Promise<void> => {
+  const token = req.cookies.auth_token
   if (!token) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
 
-  jwt.verify(
-    token.split(' ')[1],
-    process.env.JWT_SECRET as string,
-    async (err: jwt.VerifyErrors | null, decoded: any) => {
-      if (err) {
-        res.status(403).json({ error: 'Forbidden' })
-        return
-      }
+  // Verify the JWT token
+  const decoded = jwt.verify(
+    token,
+    process.env.JWT_SECRET as string
+  ) as JwtPayload
 
-      const info = decoded as JwtPayload
-      const user = await User.findOne({ email: info.email })
+  const user = await User.findOne({ _id: decoded.userId })
 
-      if (!user) {
-        res.status(404).json({ error: 'User not found' })
-        return
-      }
+  if (!user) {
+    res.status(404).json({ error: 'User not found' })
+    return
+  }
 
-      if (user.password !== info.password) {
-        res.status(403).json({ error: 'Forbidden' })
-        return
-      }
+  res.locals.user = {
+    userId: user._id as string,
+    email: user.email,
+    roles: user.roles,
+    name: user.name,
+    isVerified: user.isVerified
+  }
 
-      res.locals.user = {
-        userId: user._id,
-        email: user.email,
-        roles: user.roles,
-        name: user.name,
-        isVerified: user.isVerified
-      }
-
-      next()
-    }
-  )
+  next()
 }

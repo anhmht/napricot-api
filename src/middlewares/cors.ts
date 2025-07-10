@@ -23,7 +23,8 @@ export function configureCors() {
       } else {
         callback(new Error('Not allowed by CORS'))
       }
-    }
+    },
+    credentials: true // Allow cookies and credentials
   }
 
   return cors(corsOptions)
