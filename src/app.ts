@@ -8,6 +8,7 @@ import connectToDropbox from './config/cloud'
 import { configureRoutes } from './config/routes'
 import { errorHandler } from './utils/errors'
 import { configureCors } from './middlewares/cors'
+import { noCacheHeaders } from './middlewares/cacheControl'
 import logger from './utils/logger'
 
 /**
@@ -55,6 +56,9 @@ function setupApp(): Application {
   })
 
   app.use(boolParser())
+
+  // Apply cache control headers to all routes
+  app.use(noCacheHeaders)
 
   // Configure all routes
   configureRoutes(app)
