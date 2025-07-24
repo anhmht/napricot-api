@@ -2,6 +2,7 @@ import express, { Application } from 'express'
 import fileUpload from 'express-fileupload'
 import boolParser from 'express-query-boolean'
 import cookieParser from 'cookie-parser'
+import path from 'path'
 
 // Import configuration modules
 import connectToDropbox from './config/cloud'
@@ -16,6 +17,9 @@ import logger from './utils/logger'
  */
 function setupApp(): Application {
   const app = express()
+
+  // Serve static files from "public" directory
+  app.use(express.static(path.join(__dirname, 'public')))
 
   // Connect to Dropbox
   connectToDropbox().then((accessToken) => {
