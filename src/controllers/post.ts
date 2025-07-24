@@ -9,7 +9,7 @@ import {
 } from '../utils'
 
 import { broadcast, notificationType } from './webSocket'
-import { sendLogMessage, dataTypes, messageType } from './slack'
+import { sendLogMessage } from './slack'
 
 export const createPost = async (
   req: Request,
@@ -128,9 +128,9 @@ export const createPost = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *created*`,
-          type: messageType.SUCCESS,
+          type: 'SUCCESS',
           data: final,
-          dataType: dataTypes.POST
+          dataType: 'POST'
         })
       }
     } catch (error) {
@@ -324,9 +324,9 @@ export const updatePost = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *updated*`,
-          type: messageType.WARNING,
+          type: 'WARNING',
           data: final,
-          dataType: dataTypes.POST
+          dataType: 'POST'
         })
       }
     } catch (error) {
@@ -432,9 +432,9 @@ export const deletePosts = async (
         await sendLogMessage({
           channel: process.env.SLACK_WEBHOOK_POST_LOG as string,
           message: `Napricot post *deleted*`,
-          type: messageType.ERROR,
+          type: 'ERROR',
           data: post,
-          dataType: dataTypes.POST
+          dataType: 'POST'
         })
       }
     } catch (error) {

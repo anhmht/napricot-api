@@ -9,8 +9,6 @@ import postRoutes from '../routes/post'
 import stripeRoutes from '../routes/stripe'
 import linkRoutes from '../routes/link'
 import contactRoutes from '../routes/contact'
-import configRoutes from '../routes/config'
-import slackRoutes from '../routes/slack'
 import checkoutRoutes from '../routes/checkout'
 import emailRoutes from '../routes/email'
 import urlPreviewRoutes from '../routes/urlPreview'
@@ -30,9 +28,7 @@ export function configureRoutes(app: Application): void {
   app.use('/checkout', checkoutRoutes)
   app.use('/post', postRoutes)
   // app.use('/product', productRoutes)
-  app.use('/slack', slackRoutes)
   app.use('/link', linkRoutes)
-  app.use('/config', configRoutes)
   app.use('/contact', contactRoutes)
   app.use('/', urlPreviewRoutes)
 
