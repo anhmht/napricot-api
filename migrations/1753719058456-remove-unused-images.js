@@ -1,5 +1,5 @@
-const connectDB = require('../src/config/db').default
-const Image = require('../src/schema/Image').default
+const connectDB = require('../dist/config/db').default
+const Image = require('../dist/schema/Image').default
 
 /**
  * Make any changes you need to make to the database here
