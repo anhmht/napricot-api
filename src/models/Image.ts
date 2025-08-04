@@ -4,9 +4,11 @@ import { Document, Types } from 'mongoose'
 export interface IImage {
   id?: Types.ObjectId | string
   url?: string
-  thumbnail?: string
+  thumbnailUrl?: string
+  thumbnailPath?: string
   path?: string
   cloudflareUrl?: string
+  isFeatured?: boolean
 }
 
 // For the actual Image model
@@ -18,15 +20,4 @@ export interface IImageDocument extends Document {
   cloudflareUrl?: string
   createdAt: Date
   updatedAt: Date
-}
-
-// Interface for controller image data
-export interface ImageData {
-  id?: Types.ObjectId | string
-  url?: string
-  path?: string
-  thumbnail?: string
-  thumbnailUrl?: string
-  _id?: string
-  cloudflareUrl?: string
 }

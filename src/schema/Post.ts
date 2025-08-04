@@ -24,6 +24,15 @@ const postSchema = new Schema(
       },
       cloudflareUrl: {
         type: String
+      },
+      path: {
+        type: String
+      },
+      thumbnailPath: {
+        type: String
+      },
+      thumbnailUrl: {
+        type: String
       }
     },
     images: [
@@ -35,6 +44,15 @@ const postSchema = new Schema(
           type: String
         },
         cloudflareUrl: {
+          type: String
+        },
+        path: {
+          type: String
+        },
+        thumbnailPath: {
+          type: String
+        },
+        thumbnailUrl: {
           type: String
         }
       }
