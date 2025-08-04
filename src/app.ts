@@ -39,7 +39,7 @@ function setupApp(): Application {
     if (req.headers['content-type']?.startsWith('multipart/form-data')) {
       return fileUpload({
         limits: {
-          fileSize: 10000000 // Around 10MB
+          fileSize: 50000000 // Around 50MB
         },
         useTempFiles: true,
         tempFileDir: '/tmp/', // Specify temp directory

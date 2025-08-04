@@ -8,7 +8,7 @@ import {
   deletePost,
   deletePosts,
   getPostBySlug
-} from '../controllers/post'
+} from '../controllers/postController'
 import { authenticateJWT } from '../middlewares/authenticate'
 import { authorize } from '../middlewares/authorize'
 

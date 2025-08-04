@@ -1,15 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import Post from '../schema/Post'
-import { ImageData } from '../models/Image'
-import {
-  getMissingFields,
-  callMoveAndGetLink,
-  callDeleteImages,
-  createSearchObject
-} from '../utils'
+import { IImage } from '../models/Image'
+import { getMissingFields, createSearchObject } from '../utils'
 
 import { broadcast, notificationType } from './webSocket'
 import { sendLogMessage } from './slack'
+import { deleteImagesFromR2, savePostImagesToR2 } from './imageController'
+import { rewriteImageTag } from '../utils/image'
 
 export const createPost = async (
   req: Request,
@@ -71,44 +68,39 @@ export const createPost = async (
     })
 
     try {
-      const result = await callMoveAndGetLink({
-        slug: post.slug,
-        images: [image, ...images],
-        movePath: 'Post',
-        req
-      })
-
-      if (!result?.data) return
-
-      const { data } = result
+      const newImages = await savePostImagesToR2(
+        [{ ...image, isFeatured: true }, ...images],
+        'post'
+      )
 
       let content = decodeURIComponent(
         post.content.replace(/%(?![0-9A-F]{2})/gi, '%25') // encode all % not followed by 2 hex digits
       ).replaceAll('&amp;', '&')
 
-      data.images.forEach((element: any) => {
-        if (content.includes(element.url) && element.cloudflareUrl) {
-          content = content.replace(
-            element.url,
-            element.cloudflareUrl + 'post872x424'
-          )
-        }
-      })
+      if (newImages.length > 1) {
+        content = rewriteImageTag(content, newImages)
+      }
 
       const final = await Post.findByIdAndUpdate(
         post._id,
         {
           $set: {
             image: {
-              id: data.images[0]._id,
-              url: data.images[0].url,
-              cloudflareUrl: data.images[0].cloudflareUrl
+              id: newImages[0].id,
+              url: newImages[0].url,
+              path: newImages[0].path,
+              thumbnailPath: newImages[0].thumbnailPath,
+              thumbnailUrl: newImages[0].thumbnailUrl,
+              cloudflareUrl: newImages[0].cloudflareUrl
             },
-            images: data.images
-              .filter((img: any) => img._id !== id)
-              .map((img: any) => ({
-                id: img._id,
+            images: newImages
+              .filter((img: IImage) => img.id !== id)
+              .map((img: IImage) => ({
+                id: img.id,
                 url: img.url,
+                path: img.path,
+                thumbnailPath: img.thumbnailPath,
+                thumbnailUrl: img.thumbnailUrl,
                 cloudflareUrl: img.cloudflareUrl
               })),
             content,
@@ -216,73 +208,48 @@ export const updatePost = async (
       updatedPost
     })
 
-    const insertImages: ImageData[] = []
-    const deleteImages: ImageData[] = []
+    const insertImages: IImage[] = []
+    const deleteImages: IImage[] = []
+    const isUpdateFeaturedImage =
+      post.image && image && post.image.id !== image.id
 
-    if (post.image && image && post.image.id !== image.id) {
-      insertImages.push(image as ImageData)
-      deleteImages.push(post.image as ImageData)
+    if (isUpdateFeaturedImage) {
+      insertImages.push({ ...image, isFeatured: true } as IImage)
+      deleteImages.push(post.image as IImage)
     }
 
     if (post.images && images) {
       images.forEach((img: any) => {
         if (!post.images?.find((image) => image.id === img.id)) {
-          insertImages.push(img as ImageData)
+          insertImages.push(img as IImage)
         }
       })
 
       post.images.forEach((img) => {
         if (!images.find((image: any) => image.id === img.id)) {
-          deleteImages.push(img as ImageData)
+          deleteImages.push(img as IImage)
         }
       })
     }
 
     try {
-      const deleteResult = deleteImages.length
-        ? await callDeleteImages({
-            images: deleteImages.map((img) => ({
-              id: img.id as string,
-              url: img.url as string,
-              path: img.path as string
-            })),
-            folders: [],
-            req
-          })
-        : { data: { success: true } }
-
-      if (!deleteResult?.data?.success) return
+      if (deleteImages.length) {
+        await deleteImagesFromR2(deleteImages)
+      }
 
       const moveResult = insertImages.length
-        ? await callMoveAndGetLink({
-            slug: post.slug,
-            images: insertImages.map((img) => ({
-              id: img.id as string,
-              url: img.url as string,
-              path: img.path as string
-            })),
-            movePath: 'Post',
-            req
-          })
-        : { data: { images: [] } }
-
-      if (!moveResult?.data) return
-      const { data } = moveResult
+        ? await savePostImagesToR2(insertImages, 'post')
+        : []
 
       let updatedContent = decodeURIComponent(
         content.replace(/%(?![0-9A-F]{2})/gi, '%25') // encode all % not followed by 2 hex digits
       ).replaceAll('&amp;', '&')
 
-      data.images.forEach((element: any) => {
-        if (updatedContent.includes(element.url)) {
-          updatedContent = updatedContent.replace(
-            element.url,
-            element.cloudflareUrl + 'post872x424'
-          )
-        }
-      })
+      if (moveResult.length > 0) {
+        updatedContent = rewriteImageTag(updatedContent, moveResult)
+      }
 
-      const updateImage = data.images.find((img: any) => img._id === image?.id)
+      const updateImage = moveResult.find((img: any) => img.id === image?.id)
 
       const final = await Post.findByIdAndUpdate(
         id,
@@ -290,18 +257,28 @@ export const updatePost = async (
           $set: {
             image: updateImage
               ? {
-                  id: updateImage._id,
+                  id: updateImage.id,
                   url: updateImage.url,
+                  path: updateImage.path,
+                  thumbnailPath: updateImage.thumbnailPath,
+                  thumbnailUrl: updateImage.thumbnailUrl,
                   cloudflareUrl: updateImage.cloudflareUrl
                 }
               : undefined,
             images: images.map((img: any) => {
-              const updateImg = data.images.find(
-                (image: any) => image._id === img.id
+              const updateImg = moveResult.find(
+                (image: any) => image.id === img.id
               )
               return {
-                id: updateImg ? updateImg._id : img.id,
+                id: updateImg ? updateImg.id : img.id,
                 url: updateImg ? updateImg.url : img.url,
+                path: updateImg ? updateImg.path : img.path,
+                thumbnailPath: updateImg
+                  ? updateImg.thumbnailPath
+                  : img.thumbnailPath,
+                thumbnailUrl: updateImg
+                  ? updateImg.thumbnailUrl
+                  : img.thumbnailUrl,
                 cloudflareUrl: updateImg
                   ? updateImg.cloudflareUrl
                   : img.cloudflareUrl
@@ -363,15 +340,7 @@ export const deletePost = async (
     })
 
     try {
-      await callDeleteImages({
-        images: [post.image, ...(post.images || [])].map((img) => ({
-          id: img?.id as string,
-          url: img?.url as string,
-          path: img?.path as string
-        })),
-        folders: [`/Post/${post.slug}`],
-        req
-      })
+      await deleteImagesFromR2([post.image, ...(post.images || [])] as IImage[])
     } catch (error) {
       return next(error)
     }
@@ -400,7 +369,7 @@ export const deletePosts = async (
       _id: {
         $in: ids
       }
-    })
+    }).lean()
 
     await Post.deleteMany({
       _id: {
@@ -415,18 +384,9 @@ export const deletePosts = async (
     try {
       const imagesToDelete = posts
         .map((post) => post.image)
-        .concat(posts.flatMap((post) => post.images || []))
-        .map((img) => ({
-          id: img?.id as string,
-          url: img?.url as string,
-          path: img?.path as string
-        }))
+        .concat(posts.flatMap((post) => post.images || [])) as IImage[]
 
-      await callDeleteImages({
-        images: imagesToDelete,
-        folders: posts.map((post) => `/Post/${post.slug}`),
-        req
-      })
+      await deleteImagesFromR2(imagesToDelete)
 
       for (const post of posts) {
         await sendLogMessage({

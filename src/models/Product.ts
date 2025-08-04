@@ -1,5 +1,5 @@
 import { Document, Types } from 'mongoose'
-import { IImage, ImageData } from './Image'
+import { IImage } from './Image'
 
 export interface ProductImage extends IImage {
   // Extends the base IImage
@@ -55,7 +55,7 @@ export interface ProductRequestBody {
   author: string
   type: string
   slug: string
-  image: ImageData
-  images: ImageData[]
-  contentImages: ImageData[]
+  image: IImage
+  images: IImage[]
+  contentImages: IImage[]
 }

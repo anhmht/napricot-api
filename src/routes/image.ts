@@ -1,11 +1,11 @@
 import express from 'express'
 // Import controllers
 import {
-  uploadImage,
   moveAndGetLink,
   deleteDropboxImages,
   moveImagesToDeletedFolder
 } from '../controllers/dropbox'
+import { uploadImage } from '../controllers/imageController'
 
 const router = express.Router()
 
