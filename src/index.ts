@@ -6,7 +6,7 @@ import http from 'http'
 import https from 'https'
 import app from './app'
 import connectDB from './config/db'
-import connectPM2AndReload from './pm2/script'
+// import connectPM2AndReload from './pm2/script'
 import { createServer, startServer } from './server/server'
 import { loadSSLCredentials } from './utils/ssl'
 import logger from './utils/logger'
@@ -20,7 +20,7 @@ function initialize(): void {
     connectDB()
 
     // Connect PM2 for monitoring
-    connectPM2AndReload()
+    // connectPM2AndReload()
 
     // Load SSL certificates (only in development)
     const sslCredentials = loadSSLCredentials()

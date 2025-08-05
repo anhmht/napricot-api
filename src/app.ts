@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser'
 import path from 'path'
 
 // Import configuration modules
-import connectToDropbox from './config/cloud'
 import { configureRoutes } from './config/routes'
 import { errorHandler } from './utils/errors'
 import { configureCors } from './middlewares/cors'
@@ -20,13 +19,6 @@ function setupApp(): Application {
 
   // Serve static files from "public" directory
   app.use(express.static(path.join(__dirname, 'public')))
-
-  // Connect to Dropbox
-  connectToDropbox().then((accessToken) => {
-    if (accessToken) {
-      app.locals.dropboxAccessToken = accessToken
-    }
-  })
 
   // Apply CORS BEFORE other middleware
   app.use(configureCors())
