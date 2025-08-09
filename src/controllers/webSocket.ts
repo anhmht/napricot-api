@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 export const notificationType = {
-  POST: 'postNotification'
+  POST: 'postNotification',
+  AUTHOR: 'authorNotification'
 }
 
 export interface BroadcastData {

@@ -24,7 +24,9 @@ export const createPost = async (
       'title',
       'slug',
       'categoryId',
-      'content'
+      'content',
+      'authorSEO',
+      'titleSEO'
     ])
     if (missingField) {
       res.status(400).json({
