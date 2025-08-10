@@ -5,6 +5,7 @@ import userRoutes from '../routes/users'
 import imageRoutes from '../routes/image'
 import categoryRoutes from '../routes/category'
 import postRoutes from '../routes/post'
+import authorRoutes from '../routes/author'
 // import productRoutes from '../routes/product'
 import stripeRoutes from '../routes/stripe'
 import linkRoutes from '../routes/link'
@@ -27,6 +28,7 @@ export function configureRoutes(app: Application): void {
   app.use('/email', emailRoutes)
   app.use('/checkout', checkoutRoutes)
   app.use('/post', postRoutes)
+  app.use('/author', authorRoutes)
   // app.use('/product', productRoutes)
   app.use('/link', linkRoutes)
   app.use('/contact', contactRoutes)

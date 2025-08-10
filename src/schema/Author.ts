@@ -110,6 +110,12 @@ const authorSchema = new Schema(
     isDeleted: {
       type: Boolean,
       default: false
+    },
+    createdBy: {
+      type: String
+    },
+    updatedBy: {
+      type: String
     }
   },
   {

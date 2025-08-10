@@ -13,7 +13,8 @@ export const createAuthor = async (
   next: NextFunction
 ) => {
   try {
-    if (!res.locals.user) {
+    const user = res.locals.user
+    if (!user) {
       res.status(401).json({
         error: true,
         message: 'Unauthorized'
@@ -50,6 +51,8 @@ export const createAuthor = async (
 
     const author = await Author.create({
       ...req.body,
+      createdBy: user.userId,
+      updatedBy: user.userId,
       uploading: true
     })
 
@@ -125,7 +128,8 @@ export const updateAuthor = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!res.locals.user) {
+  const user = res.locals.user
+  if (!user) {
     res.status(401).json({
       error: true,
       message: 'Unauthorized'
@@ -134,7 +138,7 @@ export const updateAuthor = async (
   }
 
   const { id } = req.params
-  const { name, slug, avatar, images, services } = req.body
+  const { slug, avatar, images, services } = req.body
 
   const missingField = getMissingFields(req.body, [
     'name',
@@ -180,7 +184,7 @@ export const updateAuthor = async (
       {
         $set: {
           ...req.body,
-          updatedBy: res.locals.user.userId,
+          updatedBy: user.userId,
           uploading: true
         }
       },

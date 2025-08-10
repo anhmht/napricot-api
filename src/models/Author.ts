@@ -10,6 +10,10 @@ export interface IAuthor extends Document {
   description: string
   socialLinks: ISocialLink[]
   services: IAuthorService[]
+  isDeleted: boolean
+  uploading: boolean
+  createdBy: string
+  updatedBy: string
   createdAt: Date
   updatedAt: Date
 }
