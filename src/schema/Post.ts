@@ -86,6 +86,24 @@ const postSchema = new Schema(
         type: String
       }
     ],
+    authorSEO: {
+      authorId: {
+        type: String,
+        required: [true, 'Post authorId is required']
+      },
+      name: {
+        type: String,
+        required: [true, 'Post author name is required']
+      },
+      avatar: {
+        type: String,
+        required: [true, 'Post author avatar is required']
+      }
+    },
+    titleSEO: {
+      type: String,
+      required: [true, 'Post titleSEO is required']
+    },
     isDeleted: {
       type: Boolean,
       default: false

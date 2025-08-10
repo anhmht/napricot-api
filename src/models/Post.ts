@@ -15,6 +15,12 @@ export interface IPost extends Document {
   tags?: string[]
   isDeleted?: boolean
   uploading?: boolean
+  authorSEO: {
+    authorId: string
+    name: string
+    avatar: string
+  }
+  titleSEO: string
   externalUrl?: string
   updatedBy?: string
   createdAt: Date

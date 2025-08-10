@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 export const sendLogMessage = async ({
+  channel,
   message,
   type,
   data,
@@ -15,6 +16,7 @@ export const sendLogMessage = async ({
   return await axios.post(
     `${process.env.OPERATION_URL}/api/slack/send-log-message`,
     {
+      channel,
       message,
       type,
       data,
