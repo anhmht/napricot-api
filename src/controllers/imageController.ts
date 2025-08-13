@@ -24,7 +24,9 @@ export const uploadImage = async (
     return
   }
 
-  const { files, type = 'post' } = req.files
+  const { files } = req.files
+  const { type = 'post' } = req.body
+
   // If doesn't have image mime type prevent from uploading
   if (Array.isArray(files)) {
     if (!files[0].mimetype.startsWith('image/')) {
