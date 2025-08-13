@@ -53,6 +53,8 @@ export const createAuthor = async (
       ...req.body,
       createdBy: user.userId,
       updatedBy: user.userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       uploading: true
     })
 
@@ -76,7 +78,7 @@ export const createAuthor = async (
         $set: {
           avatar: newImages.find((img: IImage) => img.id === avatar.id),
           images: newImages.filter((img: IImage) => {
-            return images.includes(img.id)
+            return images.map((img: IImage) => img.id).includes(img.id)
           }),
           services: newImages
             .filter((img: IImage) => {
@@ -185,6 +187,7 @@ export const updateAuthor = async (
         $set: {
           ...req.body,
           updatedBy: user.userId,
+          updatedAt: new Date(),
           uploading: true
         }
       },
@@ -226,18 +229,16 @@ export const updateAuthor = async (
       services.forEach((service: IAuthorService) => {
         if (
           !author.services?.find(
-            (service) => service.image.id === service.image.id
+            (s: IAuthorService) => s.image.id === service.image.id
           )
         ) {
           insertImages.push(service.image as IImage)
         }
       })
 
-      author.services.forEach((service) => {
+      author.services.forEach((service: IAuthorService) => {
         if (
-          !services.find(
-            (service: IAuthorService) => service.image.id === service.image.id
-          )
+          !services.find((s: IAuthorService) => s.image.id === service.image.id)
         ) {
           deleteImages.push(service.image as IImage)
         }
@@ -270,7 +271,8 @@ export const updateAuthor = async (
               (image: IImage) => image.id === service.image.id
             )
             return updateImg ? { ...service, image: updateImg } : service
-          })
+          }),
+          uploading: false
         }
       },
       { new: true }
@@ -286,7 +288,7 @@ export const updateAuthor = async (
       await sendLogMessage({
         channel: process.env.SLACK_WEBHOOK_AUTHOR_LOG as string,
         message: `Napricot author *updated*`,
-        type: 'SUCCESS',
+        type: 'WARNING',
         data: final,
         dataType: 'AUTHOR'
       })
@@ -379,5 +381,65 @@ export const getAuthorBySlug = async (
     })
   } catch (error) {
     next(error)
+  }
+}
+
+export const deleteAuthors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { ids } = req.body
+
+    const authors = await Author.find({
+      _id: { $in: ids },
+      isDeleted: false
+    }).lean()
+
+    if (authors.length !== ids.length) {
+      res.status(400).json({
+        error: true,
+        message: 'Some authors not found'
+      })
+      return next(new Error('Some authors not found'))
+    }
+
+    await Author.updateMany(
+      { _id: { $in: ids } },
+      { $set: { isDeleted: true } }
+    ).lean()
+
+    const imagesToDelete = authors
+      .map((author) => author.avatar)
+      .concat(authors.flatMap((author) => author.images || []))
+      .concat(
+        authors.flatMap((author) =>
+          author.services.map((service) => service.image)
+        )
+      )
+      .filter((image) => image !== undefined) as IImage[]
+
+    await deleteImagesFromR2(imagesToDelete)
+
+    for (const author of authors) {
+      await sendLogMessage({
+        channel: process.env.SLACK_WEBHOOK_AUTHOR_LOG as string,
+        message: `Napricot author *deleted*`,
+        type: 'ERROR',
+        data: author,
+        dataType: 'AUTHOR'
+      })
+    }
+
+    res.status(200).json({
+      message: 'Authors deleted successfully'
+    })
+  } catch (error) {
+    next(error)
+    res.status(500).json({
+      error: true,
+      message: 'Internal server error'
+    })
   }
 }

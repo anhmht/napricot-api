@@ -4,7 +4,8 @@ import {
   updateAuthor,
   getAuthors,
   getAuthor,
-  getAuthorBySlug
+  getAuthorBySlug,
+  deleteAuthors
 } from '../controllers/authorController'
 import { authenticateJWT } from '../middlewares/authenticate'
 import { authorize } from '../middlewares/authorize'
@@ -18,12 +19,15 @@ router.post('/', authenticateJWT, authorize, createAuthor)
 router.put('/:id', authenticateJWT, authorize, updateAuthor)
 
 // getAuthors
-router.get('/', getAuthors)
+router.get('/', authenticateJWT, authorize, getAuthors)
 
 // getAuthor
-router.get('/:id', getAuthor)
+router.get('/:id', authenticateJWT, authorize, getAuthor)
 
 // getAuthorBySlug
 router.get('/slug/:slug', getAuthorBySlug)
+
+// deleteAuthors
+router.delete('/', authenticateJWT, authorize, deleteAuthors)
 
 export default router
